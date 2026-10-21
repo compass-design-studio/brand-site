@@ -1,0 +1,44 @@
+<!doctype html>
+<!--
+  PROTOTYPE: throwaway. Not the production site.
+  Question: what should Brand resources (brand.compass-design.studio) look like?
+  Every open choice in docs/prototype-options.md is switchable from the floating bar,
+  and each choice is a URL param (e.g. ?logos=B&form=C), so a link reopens the same mix.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brand resources · Compass Design Studio (prototype)</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../../public/logos/compass-tile-navy-ink-on-light-gold.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tenor+Sans&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="sr-only" href="#main">Skip to content</a>
+<header class="topbar" id="topbar"></header>
+<div class="mobile-sheet on-dark" id="mobile-sheet" hidden></div>
+<main id="main">
+  <div id="hero"></div>
+  <div class="wrap" id="sections"></div>
+  <div id="close"></div>
+</main>
+<footer class="site-foot on-dark" id="footer"></footer>
+
+<dialog class="req" id="req" aria-labelledby="req-title"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="logos.js"></script>
+<script src="rules.js"></script>
+<script src="sections.js"></script>
+<script src="form.js"></script>
+<script src="switcher.js"></script>
+</body>
+</html>
