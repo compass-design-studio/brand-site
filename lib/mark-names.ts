@@ -84,5 +84,6 @@ export function altFor(file: string): string {
 
 export function colorwayCaption(colorway: Colorway): string {
   const c = COLORWAYS[colorway]
-  return c.side === 'light' ? `${c.name} · for light backgrounds` : `${c.name} · for dark backgrounds & photos`
+  if (c.side === 'light') return `${c.name} · for light backgrounds`
+  return c.approved.includes('photo') ? `${c.name} · for dark backgrounds & photos` : `${c.name} · for Ink`
 }

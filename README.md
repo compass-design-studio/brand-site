@@ -15,8 +15,7 @@ Then open http://localhost:3000. `npm run build && npm start` serves the product
 
 ## Where things live
 
-- `content/brand.ts`: brand wording and values from the design system README and tokens. Keep in step by hand until [issue #1](https://github.com/compass-design-studio/brand-site/issues/1).
-- `content/pending-design-system.ts`: everything the site uses that the design system doesn't have yet (final minimum sizes, "use it for" lines, the two-tone and reversed notes, the filled page-close button, the 1080 px menu breakpoint). Each item goes into the design system first, then moves to `content/brand.ts`. Don't launch while anything is left there.
+- `content/brand.ts`: brand wording and values from the design system README (version 16) and tokens. Keep in step by hand until [issue #1](https://github.com/compass-design-studio/brand-site/issues/1). If the site needs wording the design system doesn't have, it goes into the design system first ([ADR 0001](docs/adr/0001-design-system-artifact-is-the-master.md)).
 - `content/site.ts`: page copy that isn't a brand rule (section names, hero, request wording).
 - `public/logos/`: the 28 SVG masters under their [ADR 0003](docs/adr/0003-mark-file-naming-convention.md) names. Drop PNG and PDF exports in beside them with the same base name; every card links a format only once its file exists, and the zips pick them up on the next build.
 - `app/downloads/[zip]/route.ts`: builds the zips (all marks, one per form, tiles and bars, two-tone and reversed) at build time.

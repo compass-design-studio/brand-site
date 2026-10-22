@@ -83,13 +83,11 @@
 .tc-square__mark { width: 74%; min-width: 160px; height: auto; }
 .tc-square__line { font-family: var(--font-display); font-size: 19px; line-height: 1.3; letter-spacing: 0.02em; color: var(--navy-deep); }
 
-.tc-notes { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; margin-top: 32px; }
-.tc-notes__h { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-family: var(--font-body); font-size: 13px; font-weight: 600; letter-spacing: 0; color: var(--ink); }
-.tc-notes__h::before { content: ''; width: 12px; height: 1px; background: var(--gold); }
+.tc-notes { max-width: 40em; margin-top: 32px; }
 .tick-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
 .tick-list li { display: grid; grid-template-columns: 20px 1fr; gap: 6px; }
-.tick-list--ok li::before { content: '\2713'; font-weight: 700; color: var(--ok); }
-.tick-list--no li::before { content: '\2715'; font-weight: 700; color: var(--no); }
+.tick-list li.is-ok::before { content: '\2713'; content: '\2713' / ''; font-weight: 700; color: var(--ok); }
+.tick-list li.is-no::before { content: '\2715'; content: '\2715' / ''; font-weight: 700; color: var(--no); }
 .tc-files { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 28px; }
 
 .tiles-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 1.3fr; align-items: end; gap: 24px; }
@@ -109,7 +107,6 @@
   .usage-sheet { grid-template-columns: 1fr 1fr; }
   .tc-scenes { grid-template-columns: 1fr 1fr; }
   .tc-scenes > :nth-child(2) { grid-column: 1 / -1; order: -1; }
-  .tc-notes { grid-template-columns: 1fr; gap: 20px; }
   .tc-files { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tiles-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .tile-card--email { grid-column: 1 / -1; }
@@ -183,23 +180,11 @@
 .bg-cell--white { background: var(--white); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .bg-cell--tan { background: var(--tan); }
 .bg-cell--ink { background: var(--ink); }
-.bg-cell--check { overflow: visible; outline: 2px dashed var(--gold-deep); outline-offset: 2px; }
 .bg-verdict { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; line-height: 1.3; }
 .bg-verdict svg { flex: none; }
 .bg-verdict--ok { color: var(--ok); }
 .bg-verdict--no { color: var(--muted); }
-.bg-verdict--check { color: var(--check); }
 
-.check-card { display: grid; grid-template-columns: 1fr 1fr; margin-top: 24px; overflow: hidden; border-radius: var(--radius-plate-sm); background: var(--ink); color: var(--paper); }
-.check-card__col { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding: 32px clamp(16px, 3vw, 32px); }
-.check-card__col + .check-card__col { border-left: 1px solid var(--rule-on-dark); }
-.check-card__art { display: flex; align-items: center; gap: 24px; width: 100%; min-height: 90px; }
-.check-card__wm { flex: 0 1 260px; min-width: 0; height: auto; }
-.check-card__gl { flex: none; width: auto; height: 64px; }
-.check-card b { font-size: 14px; font-weight: 500; color: var(--paper); }
-.check-card p { max-width: 30em; font-size: 13px; color: var(--muted-on-dark); }
-.check-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px dashed var(--light-gold); border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--light-gold); }
-.check-tag--solid { border-style: solid; }
 
 .minsize-table { width: 100%; border-collapse: collapse; }
 .minsize-table th, .minsize-table td { padding: 14px 12px 14px 0; border-bottom: 1px solid var(--rule); vertical-align: middle; text-align: left; font-size: 13px; }
@@ -235,10 +220,6 @@
   .bg-matrix { min-width: 640px; }
 }
 @media (max-width: 640px) {
-  .check-card { grid-template-columns: 1fr; }
-  .check-card__col + .check-card__col { border-top: 1px solid var(--rule-on-dark); border-left: 0; }
-  .check-card__art { gap: 16px; }
-  .check-card__gl { height: 48px; }
   .minsize-table, .minsize-table tbody { display: block; }
   .minsize-table thead { display: none; }
   .minsize-table tr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--rule); }

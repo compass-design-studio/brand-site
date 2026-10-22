@@ -2,14 +2,13 @@
 // system README; the pictures are drawn from the mark files and its numbers (ADR 0004).
 
 import Image from 'next/image'
-import { Compass, Eye, MinusCircle, CheckCircle, Check } from '@phosphor-icons/react/ssr'
+import { Compass, MinusCircle, CheckCircle } from '@phosphor-icons/react/ssr'
 import { BesideAnotherLogo, ClearSpace, JobSiteSign, MergedWithAnotherLogo, Outlined, Rearranged, Recolored, TileGeometry, UnequalToAnotherLogo, ART_WIDTH_SCALE } from '@/components/diagrams'
 import { Mark } from '@/components/Mark'
 import { SectionHead, Verdict } from '@/components/ui'
-import { BACKGROUND_NAMES, COLORS, COLORWAYS, DARK_COLORWAYS, LIGHT_COLORWAYS, SWATCHES, USAGE, weakestRatio, type Background, type Colorway } from '@/content/brand'
+import { BACKGROUND_NAMES, COLORS, COLORWAYS, DARK_COLORWAYS, LIGHT_COLORWAYS, MIN_SIZE, MIN_SIZES, SWATCHES, USAGE, weakestRatio, type Background, type Colorway, type MinSizeRow } from '@/content/brand'
 import { IMAGES, type SiteImage } from '@/content/images'
-import { GOLD_DEEP_ON_INK, MIN_SIZES, MIN_SIZE_NOTE, TILE_MIN_NOTE, type MinSizeRow } from '@/content/pending-design-system'
-import { contrastRatio, formatRatio } from '@/lib/contrast'
+import { formatRatio } from '@/lib/contrast'
 import { altFor, markFile } from '@/lib/mark-names'
 import { weakestOnPhoto, type PhotoPlacement } from '@/lib/photo-contrast'
 
@@ -95,21 +94,15 @@ const MATRIX_BGS: Background[] = ['paper', 'paper-2', 'white', 'tan', 'ink', 'ph
 function MatrixCell({ colorway, bg }: { colorway: Colorway; bg: Background }) {
   const file = markFile('wordmark', colorway)
   const approved = COLORWAYS[colorway].approved.includes(bg)
-  const check = colorway === 'gold-deep' && bg === 'ink'
   const ratio = bg === 'photo' ? null : weakestRatio(colorway, bg)
   const where = bg === 'photo' ? 'a dark photo' : BACKGROUND_NAMES[bg]
   return (
     <td>
-      <div className={`bg-cell bg-cell--${bg}${check ? ' bg-cell--check' : ''}`}>
+      <div className={`bg-cell bg-cell--${bg}`}>
         {bg === 'photo' && <Image src={IMAGES.hurricaneRanch.src} alt="" fill sizes="160px" style={{ objectFit: 'cover', objectPosition: '35% 100%' }} />}
-        <Mark file={file} alt={`${altFor(file)} on ${where}${approved ? '' : check ? ', for a visual check only' : ', not approved'}`} />
+        <Mark file={file} alt={`${altFor(file)} on ${where}${approved ? '' : ', not approved'}`} />
       </div>
-      {check ? (
-        <div className="bg-verdict bg-verdict--check">
-          <Eye size={14} aria-hidden />
-          Visual check · {formatRatio(ratio!)} · not approved
-        </div>
-      ) : approved ? (
+      {approved ? (
         <div className="bg-verdict bg-verdict--ok">
           <CheckCircle size={14} weight="fill" aria-hidden />
           {ratio === null ? 'Yes · check it' : `Yes · ${formatRatio(ratio)}`}
@@ -160,47 +153,11 @@ function BackgroundsMatrix() {
   )
 }
 
-function GoldDeepCheck() {
-  return (
-    <div className="check-card on-dark grid-shrink">
-      <div className="check-card__col">
-        <span className="check-tag">
-          <Eye size={14} aria-hidden />
-          {GOLD_DEEP_ON_INK.tag}
-        </span>
-        <div className="check-card__art">
-          <Mark file="compass-wordmark-gold-deep" alt="Compass wordmark, gold deep, on Ink" className="check-card__wm" />
-          <Mark file="compass-glyph-gold-deep" alt="Compass glyph, gold deep, on Ink" className="check-card__gl" />
-        </div>
-        <div>
-          <b>Gold deep on Ink · {formatRatio(contrastRatio(COLORS['gold-deep'], COLORS.ink))}</b>
-          <p>{GOLD_DEEP_ON_INK.body}</p>
-        </div>
-      </div>
-      <div className="check-card__col">
-        <span className="check-tag check-tag--solid">
-          <Check size={14} aria-hidden />
-          Approved, for comparison
-        </span>
-        <div className="check-card__art">
-          <Mark file="compass-wordmark-light-gold" alt="Compass wordmark, light gold, on Ink" className="check-card__wm" />
-          <Mark file="compass-glyph-light-gold" alt="Compass glyph, light gold, on Ink" className="check-card__gl" />
-        </div>
-        <div>
-          <b>Light gold on Ink · {formatRatio(contrastRatio(COLORS['light-gold'], COLORS.ink))}</b>
-          <p>The approved gold for dark backgrounds.</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ---------- Minimum size ----------
 
 const STANDARD_FILE = (form: MinSizeRow['form']) => markFile(form, 'navy-ink')
 const LARGER_FILE = (form: MinSizeRow['form']) => (form === 'glyph' ? 'compass-glyph-gold-deep' : markFile(form, 'two-tone'))
-const COL_STANDARD = 'Navy ink, paper, light gold, reversed'
-const COL_LARGER = 'Two-tone, gold deep'
+const [COL_STANDARD, COL_LARGER] = MIN_SIZE.columns
 
 function ActualSize({ file, row, px }: { file: string; row: MinSizeRow; px: number }) {
   // An image's px size must be the mark's own size, so lockups are sized by their art.
@@ -215,7 +172,7 @@ function ActualSize({ file, row, px }: { file: string; row: MinSizeRow; px: numb
 function MinimumSizes() {
   return (
     <>
-      <p className="small muted plate-lede">{MIN_SIZE_NOTE} Marks are shown at actual size at 100% zoom.</p>
+      <p className="small muted plate-lede">{MIN_SIZE.larger} Marks are shown at actual size at 100% zoom.</p>
       <table className="minsize-table">
         <thead>
           <tr>
@@ -245,12 +202,12 @@ function MinimumSizes() {
           <tr>
             <th scope="row">Tiles</th>
             <td colSpan={2}>
-              <span className="small">{TILE_MIN_NOTE}</span>
+              <span className="small">{MIN_SIZE.tile}</span>
             </td>
           </tr>
         </tbody>
       </table>
-      <p className="small plate-note">Too small? Step down: lockup, then wordmark, then glyph or tile.</p>
+      <p className="small plate-note">{MIN_SIZE.tooSmall}</p>
     </>
   )
 }
@@ -435,13 +392,12 @@ export function UsageRules() {
         </div>
       </Plate>
 
-      <Plate n={3} id="minimum-size" title="Minimum size" text="The smallest each mark may be reproduced at, in px for screens and mm for print.">
+      <Plate n={3} id="minimum-size" title="Minimum size" text={MIN_SIZE.intro}>
         <MinimumSizes />
       </Plate>
 
       <Plate n={4} id="contrast" title="Approved backgrounds" text={USAGE.contrast}>
         <BackgroundsMatrix />
-        <GoldDeepCheck />
       </Plate>
 
       <Plate n={5} id="photos" title="Photos" text={USAGE.photos}>

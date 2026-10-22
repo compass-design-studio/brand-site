@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { COLORS, weakestRatio } from '@/content/brand'
+import { COLORS, COLORWAYS, weakestRatio } from '@/content/brand'
 import { contrastRatio, formatRatio } from '@/lib/contrast'
 import { ZIPS } from '@/lib/downloads'
 import { ALL_MARK_FILES, altFor, markSize } from '@/lib/mark-names'
@@ -17,6 +17,12 @@ describe('contrast', () => {
     expect(formatRatio(contrastRatio(COLORS.ink, COLORS.paper))).toBe('13.39:1')
     expect(formatRatio(weakestRatio('two-tone', 'paper-2'))).toBe('2.91:1')
     expect(formatRatio(weakestRatio('gold-deep', 'tan'))).toBe('2.74:1')
+  })
+
+  it('approves backgrounds as the design system lists them', () => {
+    expect(COLORWAYS.reversed.approved).toEqual(['ink'])
+    expect(COLORWAYS['gold-deep'].approved).not.toContain('ink')
+    expect(COLORWAYS['light-gold'].approved).toEqual(['ink', 'photo'])
   })
 
   it('never rounds a failing ratio up', () => {

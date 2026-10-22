@@ -76,7 +76,6 @@
 .topbar .wrap { height: 100%; display: flex; align-items: center; gap: 28px; }
 .topbar__brand { display: flex; align-items: center; gap: 14px; flex: none; color: var(--ink); text-decoration: none; }
 .topbar__brand img { width: auto; height: 18px; }
-.topbar__label { padding-left: 14px; border-left: 1px solid var(--rule-strong); font-size: 13px; font-weight: 500; color: var(--muted); }
 .topbar__nav { margin-left: auto; display: flex; align-items: center; gap: 22px; }
 .topbar__link {
   padding: 6px 0;
@@ -99,7 +98,12 @@
 .menu-btn[aria-expanded='true'] span:nth-child(1) { transform: rotate(45deg); }
 .menu-btn[aria-expanded='true'] span:nth-child(2) { transform: rotate(-45deg); }
 
-/* The breakpoints for the menu button and the label live in content/pending-design-system.ts. */
+/* The design system's mobile nav: 900 px and below. TopBar.tsx closes the sheet above it. */
+@media (max-width: 900px) {
+  .topbar__nav { display: none; }
+  .menu-btn { display: block; }
+}
+@media (min-width: 901px) { .mobile-sheet { display: none; } }
 
 .menu-open .topbar { background: transparent; border-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .menu-open .topbar .wm-light { display: none; }

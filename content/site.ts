@@ -1,5 +1,5 @@
 // Site copy: section names and short page text that isn't a brand rule. Brand wording comes
-// from content/brand.ts (the design system) or content/pending-design-system.ts.
+// from content/brand.ts (the design system).
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brand.compass-design.studio'
 
@@ -12,7 +12,7 @@ export const SECTIONS: { id: SectionId; name: string; nav: string }[] = [
   { id: 'color', name: 'Color', nav: 'Color' },
   { id: 'type', name: 'Typography & fonts', nav: 'Type' },
   { id: 'voice', name: 'Voice & copy', nav: 'Voice' },
-  { id: 'icons', name: 'Iconography', nav: 'Iconography' },
+  { id: 'icons', name: 'Iconography', nav: 'Icons' },
   { id: 'imagery', name: 'Imagery', nav: 'Imagery' },
   { id: 'insitu', name: 'In situ', nav: 'In situ' },
 ]

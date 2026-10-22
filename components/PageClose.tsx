@@ -12,7 +12,7 @@ export function PageClose() {
           <span className="eyebrow">{REQUEST_COPY.closeEyebrow}</span>
           <h2 id="close-title">{REQUEST_COPY.closeTitle}</h2>
           <p>{REQUEST_COPY.closeBody}</p>
-          {/* A filled button, pending the design system ("filled-close" in content/pending-design-system.ts). */}
+          {/* A filled button, because this close starts something: the request form (README, "Page close"). */}
           <RequestButton className="btn btn--ink">
             {REQUEST_COPY.closeButton}
             <ArrowRight size={16} aria-hidden />

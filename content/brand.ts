@@ -1,11 +1,12 @@
 // Brand content from the design system, the master record of the brand (ADR 0001):
-// https://claude.ai/artifact/Rw1w5LKT3xh6SJpoXojNnV, project/README.md and project/tokens.json,
-// read 21 October 2026. Kept in step by hand until the sync in issue #1.
+// https://claude.ai/artifact/Rw1w5LKT3xh6SJpoXojNnV, project/README.md (version 16) and
+// project/tokens.json, read 22 October 2026. Kept in step by hand until the sync in issue #1.
 //
-// Wording here may be shortened but never changes meaning. Anything the site needs that the
-// design system doesn't have yet lives in ./pending-design-system.ts, not here.
+// Wording here may be shortened but never changes meaning. If the site ever needs brand wording
+// the design system doesn't have, it goes into the design system first (ADR 0001).
 
 import { contrastRatio } from '@/lib/contrast'
+import type { FormKey } from '@/lib/mark-names'
 
 // ---------- Palette (tokens.json, exact; ADR 0002 keeps these unchanged) ----------
 
@@ -86,7 +87,7 @@ export const COLORWAYS: Record<Colorway, ColorwayInfo> = {
   'two-tone': { name: 'Two-tone', side: 'light', colors: ['navy-ink', 'gold-deep'], approved: ['paper', 'white'], approvedNote: 'Paper and white only' },
   'navy-ink': { name: 'Navy ink', side: 'light', colors: ['navy-ink'], approved: ['paper', 'paper-2', 'white', 'tan'], approvedNote: 'Paper, Paper 2, white, Tan' },
   'gold-deep': { name: 'Gold deep', side: 'light', colors: ['gold-deep'], approved: ['paper', 'white'], approvedNote: 'Paper and white only' },
-  reversed: { name: 'Reversed', side: 'dark', colors: ['paper', 'light-gold'], approved: ['ink', 'photo'], approvedNote: 'Ink and dark areas of photos' },
+  reversed: { name: 'Reversed', side: 'dark', colors: ['paper', 'light-gold'], approved: ['ink'], approvedNote: 'Ink only' },
   paper: { name: 'Paper', side: 'dark', colors: ['paper'], approved: ['ink', 'photo'], approvedNote: 'Ink and dark areas of photos' },
   'light-gold': { name: 'Light gold', side: 'dark', colors: ['light-gold'], approved: ['ink', 'photo'], approvedNote: 'Ink and dark areas of photos' },
 }
@@ -108,7 +109,6 @@ export const USAGE = {
   clearSpaceForms: 'Leave the height of the glyph clear on every side. Nothing enters it: text, rules, photo or page edges, other logos.',
   clearSpaceGlyph: 'Leave a quarter of its height clear on every side: at least 8 px on screen or 2 mm in print. Beside another logo, half its height.',
   tile: "In a tile, the glyph is two-thirds of the tile's height, centered, and never more than 68%.",
-  stepDown: "If it won't fit, step down: lockup, then wordmark, then glyph or tile.",
   contrast:
     "Every color in the mark keeps at least 3:1 on these. Anywhere else, use the colorway with the most contrast and check it where it's weakest; under 3:1, move the mark or use a tile.",
   contrastShort: "Every color in the mark keeps 3:1 on what's behind it.",
@@ -125,6 +125,62 @@ export const USAGE = {
     { lead: '', rest: 'Only Allison or Canyon approves a new, changed or retired mark. Nobody else makes one-off versions.' },
   ],
 } as const
+
+// README "Marks", "Use it for".
+export const FORM_USE_FOR: Record<FormKey, string> = {
+  wordmark: 'Most jobs — documents, slides, web, social.',
+  'lockup-horizontal': 'Wide spaces that introduce us — signage, covers, proposals.',
+  'lockup-stacked': 'Narrower spaces — signage, stationery, covers.',
+  glyph: 'Where the name already appears, or space is tight.',
+}
+
+export const TILE_USE_FOR: Record<string, string> = {
+  'compass-tile-navy-ink-on-light-gold': 'Favicon and app icon.',
+  'compass-tile-light-gold-on-ink': 'Profile pictures.',
+  'compass-tile-ink-on-paper': 'Profile pictures.',
+  'compass-tile-email-light-gold-on-ink': 'Email signatures.',
+  'compass-wordmark-bar-navy-deep-on-light-gold': 'Headers and labels where the mark needs its own background.',
+  'compass-wordmark-bar-light-gold-on-navy-deep': 'Headers and labels where the mark needs its own background.',
+}
+
+// README "Marks", "Two-tone and reversed".
+export const TWO_COLOR = {
+  lead: 'Special moments only. Use them once per piece, large, on flat, type-led layouts — covers, title slides, stationery, signage panels, typographic posts.',
+  notes: [
+    { ok: true, text: 'Two-tone on Paper or white, reversed on Ink.' },
+    { ok: false, text: 'Never over photos or texture.' },
+    { ok: true, text: 'Proof two-tone in print.' },
+  ],
+  twoToneOn: 'On Paper or white',
+  reversedOn: 'On Ink',
+}
+
+// README "Usage rules", "Minimum size".
+export type MinSize = { px: number; mm: number }
+export type MinSizeRow = {
+  form: FormKey
+  label: string
+  /** Most colorways. */
+  standard: MinSize
+  /** Two-tone and gold deep. For the glyph, gold deep. */
+  larger: MinSize
+  axis: 'wide' | 'tall'
+}
+
+export const MIN_SIZES: MinSizeRow[] = [
+  { form: 'wordmark', label: 'Wordmark', standard: { px: 120, mm: 32 }, larger: { px: 160, mm: 40 }, axis: 'wide' },
+  { form: 'lockup-horizontal', label: 'Horizontal lockup', standard: { px: 200, mm: 50 }, larger: { px: 260, mm: 65 }, axis: 'wide' },
+  { form: 'lockup-stacked', label: 'Stacked lockup', standard: { px: 140, mm: 36 }, larger: { px: 180, mm: 45 }, axis: 'wide' },
+  { form: 'glyph', label: 'Glyph', standard: { px: 24, mm: 6 }, larger: { px: 32, mm: 8 }, axis: 'tall' },
+]
+
+export const MIN_SIZE = {
+  intro: 'Never go below these sizes — fine lines close up.',
+  larger: 'Two-tone and gold deep need more, because gold deep has the least contrast.',
+  tooSmall: 'Too small? Switch to navy ink, then step down: lockup, wordmark, glyph or tile.',
+  tile: 'In a tile the glyph has no minimum, and a tile may shrink to a 16 px favicon.',
+  columns: ['Most colorways', 'Two-tone and gold deep'] as const,
+}
 
 // ---------- Type, voice, icons, spacing, imagery (README "Visual foundations", tokens.json) ----------
 

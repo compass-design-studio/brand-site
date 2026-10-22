@@ -6,7 +6,7 @@
   .topbar, .mobile-sheet, .menu-btn, .skip-link, .toast, .req, .dl-menu, .sig-actions { display: none !important; }
   details::details-content { content-visibility: visible; display: block; }
   details > summary .tog { display: none; }
-  .hero__plate, .pp__half--dark, .tc-plate__half--dark, .check-card, .pic--ink, .bg-cell, .site-foot, .swatch__chip, .pairing, .color-chip i {
+  .hero__plate, .pp__half--dark, .tc-plate__half--dark, .pic--ink, .bg-cell, .site-foot, .swatch__chip, .pairing, .color-chip i {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

@@ -25,7 +25,6 @@
   --field-border: #818A90;   /* 3.52:1 on white, so field edges meet WCAG 1.4.11 */
   --ok: #2F6B52;             /* success, darkened: 5.72:1 on Paper */
   --no: #9A3B2D;             /* danger, darkened: 6.30:1 on Paper */
-  --check: #7A5A12;          /* visual-check label: 5.80:1 on Paper */
 
   --font-display: var(--font-tenor), 'Optima', 'Times New Roman', serif;
   --font-body: var(--font-dm-sans), system-ui, -apple-system, sans-serif;

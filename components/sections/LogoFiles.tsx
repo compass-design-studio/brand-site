@@ -7,9 +7,8 @@ import { RequestButton } from '@/components/client/RequestDialog'
 import { ClearSpace } from '@/components/diagrams'
 import { Mark } from '@/components/Mark'
 import { Disclosure, Formats, SectionHead, Verdict } from '@/components/ui'
-import { BACKGROUND_NAMES, COLORS, COLORWAYS, USAGE, weakestRatio, type Colorway } from '@/content/brand'
+import { BACKGROUND_NAMES, COLORS, COLORWAYS, FORM_USE_FOR, MIN_SIZE, MIN_SIZES, TILE_USE_FOR, TWO_COLOR, USAGE, weakestRatio, type Colorway } from '@/content/brand'
 import { IMAGES } from '@/content/images'
-import { FORM_USE_FOR, MIN_SIZES, TILE_USE_FOR, TWO_COLOR } from '@/content/pending-design-system'
 import { formatRatio } from '@/lib/contrast'
 import { ZIP, zipHref, type ZipDef } from '@/lib/downloads'
 import { formatsNote, kitFormats } from '@/lib/format-note'
@@ -156,6 +155,7 @@ function minSizeLine(form: Form): string {
 
 function UsageSheet({ form }: { form: Form }) {
   const narrow = form.colorways.filter((c) => c === 'two-tone' || c === 'gold-deep').map((c, i) => (i ? COLORWAYS[c].name.toLowerCase() : COLORWAYS[c].name))
+  const reversed = form.colorways.includes('reversed')
   return (
     <div className="usage-sheet">
       <div className="usage-sheet__item">
@@ -170,7 +170,9 @@ function UsageSheet({ form }: { form: Form }) {
             <BackgroundChips colorway={c} />
           </div>
         ))}
-        <p className="small muted">{narrow.join(' and ')}: Paper and white only.</p>
+        <p className="small muted">
+          {narrow.join(' and ')}: Paper and white only.{reversed && ` Reversed: ${COLORWAYS.reversed.approvedNote}.`}
+        </p>
       </div>
       <div className="usage-sheet__item">
         <h4>Clear space</h4>
@@ -182,7 +184,7 @@ function UsageSheet({ form }: { form: Form }) {
       <div className="usage-sheet__item">
         <h4>Minimum size</h4>
         <p>{minSizeLine(form)}</p>
-        <p className="muted">{USAGE.stepDown}</p>
+        <p className="muted">{MIN_SIZE.tooSmall}</p>
       </div>
       <p className="usage-sheet__foot">
         Contrast: {USAGE.contrastShort.charAt(0).toLowerCase() + USAGE.contrastShort.slice(1)}{' '}
@@ -207,11 +209,11 @@ function TwoToneAndReversed() {
       <div className="tc-plate grid-shrink">
         <div className="tc-plate__half tc-plate__half--light">
           <Mark file="compass-lockup-stacked-two-tone" />
-          <span className="tc-plate__cap">Two-tone · {TWO_COLOR.twoToneOn.toLowerCase()}</span>
+          <span className="tc-plate__cap">Two-tone · {TWO_COLOR.twoToneOn.replace(/^On/, 'on')}</span>
         </div>
         <div className="tc-plate__half tc-plate__half--dark on-dark">
           <Mark file="compass-lockup-stacked-reversed" />
-          <span className="tc-plate__cap">Reversed · {TWO_COLOR.reversedOn.toLowerCase()}</span>
+          <span className="tc-plate__cap">Reversed · {TWO_COLOR.reversedOn.replace(/^On/, 'on')}</span>
         </div>
       </div>
 
@@ -245,24 +247,13 @@ function TwoToneAndReversed() {
         </figure>
       </div>
 
-      <div className="tc-notes grid-shrink">
-        <div>
-          <h4 className="tc-notes__h">Use them for</h4>
-          <ul className="tick-list tick-list--ok">
-            {TWO_COLOR.useThemFor.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h4 className="tc-notes__h">Not for</h4>
-          <ul className="tick-list tick-list--no">
-            {TWO_COLOR.notFor.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <ul className="tick-list tc-notes">
+        {TWO_COLOR.notes.map((n) => (
+          <li key={n.text} className={n.ok ? 'is-ok' : 'is-no'}>
+            {n.text}
+          </li>
+        ))}
+      </ul>
 
       <div className="cw-list tc-files">
         {forms.flatMap((f) =>
