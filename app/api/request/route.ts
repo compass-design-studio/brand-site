@@ -36,6 +36,11 @@ export async function POST(request: Request) {
 
   // Bots that fill the hidden field or post too fast are told it worked, and nothing is sent.
   if (typeof body.website === 'string' && body.website.trim() !== '') return reply({ ok: true })
+
+  // Checked before the token: without a key there's no stable secret to sign it with.
+  const config = mailConfig()
+  if (!config.apiKey && !config.dryRun) return reply({ ok: false, error: 'not-configured' }, 503)
+
   const token = checkToken(body.token, Date.now(), tokenSecret())
   if (token === 'too-fast') return reply({ ok: true })
   if (token !== 'ok') return reply({ ok: false, error: 'expired' }, 400)
@@ -43,13 +48,11 @@ export async function POST(request: Request) {
   const result = validateRequest(body)
   if (!result.ok) return reply({ ok: false, error: 'invalid', errors: result.errors }, 422)
 
-  const config = mailConfig()
   const email = composeEmail(result.value)
-  if (config.dryRun) {
+  if (config.dryRun || !config.apiKey) {
     console.info('Request form (dry run, not sent)', { from: config.from, to: config.to, replyTo: result.value.email, ...email })
     return reply({ ok: true })
   }
-  if (!config.apiKey) return reply({ ok: false, error: 'not-configured' }, 503)
 
   try {
     const sent = await sendWithResend({ ...config, apiKey: config.apiKey }, email, result.value.email)
