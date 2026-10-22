@@ -14,11 +14,11 @@ const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variab
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Brand resources · Compass Design Studio',
-  description: 'Compass Design Studio marks, colors, type and the rules for using them, for the studio’s staff, contractors and trade partners.',
+  title: 'Brand resources · logos and brand guidelines · Compass Design Studio',
+  description: 'Download Compass Design Studio logos and read our brand guidelines: usage rules, colors, type and voice. For our staff, contractors and trade partners.',
   openGraph: {
-    title: 'Brand resources · Compass Design Studio',
-    description: 'Logos, colors, type and the rules for using them.',
+    title: 'Brand resources · logos and brand guidelines',
+    description: 'Logos and brand guidelines: colors, type and the rules for using them.',
     url: SITE_URL,
     siteName: 'Compass Design Studio',
     type: 'website',
