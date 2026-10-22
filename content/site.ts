@@ -26,7 +26,7 @@ export const STUDIO_META = 'Compass Design Studio · Northern Alabama'
 export const HERO = {
   kicker: 'Brand resources',
   title: "Everything you need to put the studio's name on something.",
-  lead: "Logos, colors, type and the rules for using them, for the studio's staff, contractors and trade partners.",
+  lead: "Logos and brand guidelines: colors, type and the rules for using them, for the studio's staff, contractors and trade partners.",
 }
 
 export const REQUEST_COPY = {
