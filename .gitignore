@@ -6,3 +6,17 @@
 
 # Local uploads and scratch files
 tmp/
+
+# Next.js
+/node_modules
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Environment (keys never go in the repo; see .env.example)
+.env*
+!.env.example
+
+# Vercel
+.vercel

@@ -1,0 +1,115 @@
+/* Base elements, text roles and layout primitives. */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--topbar-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body.is-locked { overflow: hidden; }
+
+img, svg { display: block; max-width: 100%; }
+a { color: var(--navy-deep); }
+p { margin: 0; }
+figure { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--navy-deep);
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+}
+h3, h4 { letter-spacing: 0.04em; }
+
+:focus-visible { outline: 2px solid var(--navy-deep); outline-offset: 3px; border-radius: 2px; }
+.on-dark :focus-visible, .on-dark:focus-visible { outline-color: var(--light-gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link { position: absolute; left: 16px; top: -100px; z-index: 100; padding: 10px 16px; background: var(--ink); color: var(--paper); border-radius: 8px; font-weight: 600; text-decoration: none; }
+.skip-link:focus { top: 12px; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* ---------- Text roles ---------- */
+
+.lead { font-size: 17px; font-weight: 300; line-height: 1.65; color: var(--muted); max-width: 36em; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; line-height: 1.5; }
+.mono { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0; }
+.h4 { font-family: var(--font-display); font-size: 17px; line-height: 1.25; letter-spacing: 0.04em; color: var(--navy-deep); }
+
+/* Small labels: Ink with a short gold tick before them (prototype item 13). */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.eyebrow::before { content: ''; flex: none; width: 16px; height: 1px; background: var(--gold); }
+.on-dark .eyebrow { color: var(--light-gold); }
+.on-dark .eyebrow::before { background: var(--light-gold); opacity: 0.6; }
+
+.num { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+.on-dark .muted { color: var(--muted-on-dark); }
+
+/* Links in running text are underlined, so they don't rely on color alone (WCAG 1.4.1). */
+.text-link {
+  color: var(--navy-deep);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(31, 74, 102, 0.45);
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+.text-link:hover { text-decoration-color: var(--gold); }
+.on-dark .text-link { color: var(--light-gold); text-decoration-color: rgba(225, 201, 130, 0.5); }
+
+.arrow-link {
+  color: var(--navy-deep);
+  font-weight: 500;
+  text-decoration: none;
+  padding-bottom: 2px;
+  background: linear-gradient(var(--gold), var(--gold)) no-repeat 0 100% / 0 1px;
+  transition: background-size var(--dur) var(--ease);
+}
+.arrow-link:hover { background-size: 100% 1px; }
+
+/* Grid children may shrink below their content width on phones. */
+.grid-shrink > * { min-width: 0; }

@@ -1,0 +1,48 @@
+/* Brand tokens, exactly as the design system defines them (tokens.json, read 21 October 2026).
+   Values marked "site-only" exist so the page's own text meets WCAG 2.2 AA (ADR 0002);
+   they are never brand colors and never appear in the palette on the page. */
+
+:root {
+  --navy: #2A5D7E;
+  --navy-deep: #1F4A66;
+  --navy-ink: #133558;
+  --ink: #1A2A36;
+  --paper: #F7F4EE;
+  --paper-2: #EFEAE0;
+  --tan: #E9E3DB;
+  --white: #FFFFFF;
+  --gold: #AD9A4C;
+  --gold-deep: #9C8842;
+  --light-gold: #E1C982;
+
+  --rule: rgba(26, 42, 54, 0.12);
+  --rule-strong: rgba(26, 42, 54, 0.22);
+  --rule-on-dark: rgba(225, 201, 130, 0.25);
+
+  /* site-only (ADR 0002) */
+  --muted: #5D6873;          /* 5.18:1 on Paper, 4.74:1 on Paper 2, 5.69:1 on white; not for text on Tan (4.46:1) */
+  --muted-on-dark: #B5B7B7;  /* 7.30:1 on Ink */
+  --field-border: #818A90;   /* 3.52:1 on white, so field edges meet WCAG 1.4.11 */
+  --ok: #2F6B52;             /* success, darkened: 5.72:1 on Paper */
+  --no: #9A3B2D;             /* danger, darkened: 6.30:1 on Paper */
+  --check: #7A5A12;          /* visual-check label: 5.80:1 on Paper */
+
+  --font-display: var(--font-tenor), 'Optima', 'Times New Roman', serif;
+  --font-body: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), 'IBM Plex Mono', ui-monospace, monospace;
+
+  --shadow-1: 0 1px 2px rgba(26, 42, 54, 0.06);
+  --shadow-2: 0 6px 16px -8px rgba(26, 42, 54, 0.18);
+  --shadow-3: 0 18px 36px -20px rgba(26, 42, 54, 0.30);
+  --shadow-4: 0 30px 60px -32px rgba(26, 42, 54, 0.40);
+
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --dur: 240ms;
+  --texture-drafting: repeating-linear-gradient(135deg, rgba(225, 201, 130, 0.045) 0 1px, transparent 1px 80px);
+  --radius-plate: 60px 60px 16px 16px;
+  --radius-plate-sm: 32px 32px 16px 16px;
+
+  --gutter: clamp(16px, 5vw, 64px);
+  --maxw: 1280px;
+  --topbar-h: 64px;
+}

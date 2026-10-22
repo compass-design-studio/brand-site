@@ -1,0 +1,16 @@
+/* Print: every disclosure and drawer opens (PrintOpener sets [open] on beforeprint; the
+   ::details-content rule covers browsers that print without firing it), and the page
+   chrome that only works on screen is left out. */
+
+@media print {
+  .topbar, .mobile-sheet, .menu-btn, .skip-link, .toast, .req, .dl-menu, .sig-actions { display: none !important; }
+  details::details-content { content-visibility: visible; display: block; }
+  details > summary .tog { display: none; }
+  .hero__plate, .pp__half--dark, .tc-plate__half--dark, .check-card, .pic--ink, .bg-cell, .site-foot, .swatch__chip, .pairing, .color-chip i {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .spec-plate, .plate { break-inside: avoid-page; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 11px; color: var(--muted); }
+  .formats a::after, .topbar__link::after { content: none; }
+}
