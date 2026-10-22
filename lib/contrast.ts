@@ -1,0 +1,34 @@
+// WCAG 2.x relative luminance and contrast ratio, for the page's own checks and for
+// the marks' 3:1 rule (ADR 0004).
+
+function channel(value: number): number {
+  const c = value / 255
+  return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+}
+
+export function hexToRgb(hex: string): [number, number, number] {
+  const n = hex.replace('#', '')
+  return [0, 2, 4].map((i) => parseInt(n.slice(i, i + 2), 16)) as [number, number, number]
+}
+
+export function luminance(hex: string): number {
+  const [r, g, b] = hexToRgb(hex)
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+}
+
+export function contrastRatio(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+const THRESHOLDS = [3, 4.5, 7]
+
+/**
+ * Rounds to two places, as the design system quotes ratios, but never up across a threshold,
+ * so a failing ratio is never shown as passing: 2.999 → "2.99:1".
+ */
+export function formatRatio(ratio: number): string {
+  let shown = Math.round(ratio * 100) / 100
+  if (THRESHOLDS.some((t) => ratio < t && shown >= t)) shown = Math.floor(ratio * 100) / 100
+  return `${shown.toFixed(2)}:1`
+}
