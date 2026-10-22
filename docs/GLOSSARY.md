@@ -56,7 +56,7 @@ The wordmark centered on a solid-color bar.
 _Avoid_: banner
 
 **Colorway**:
-One of the six color treatments a mark comes in. Two-tone, navy ink and gold deep are for light backgrounds (two-tone and gold deep on Paper and white only); reversed, paper and light gold are for Ink and dark areas of photos. Two-tone means Navy ink letters with a Gold deep glyph; reversed means Paper letters with a Light gold glyph. Tiles and wordmark bars are named by their art color on their background color instead.
+One of the six color treatments a mark comes in. Two-tone, navy ink and gold deep are for light backgrounds (two-tone and gold deep on Paper and white only); reversed is for Ink; paper and light gold are for Ink and dark areas of photos. Two-tone means Navy ink letters with a Gold deep glyph; reversed means Paper letters with a Light gold glyph. Tiles and wordmark bars are named by their art color on their background color instead.
 _Avoid_: variant, color version
 
 ## Using marks

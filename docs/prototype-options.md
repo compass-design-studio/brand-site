@@ -39,6 +39,8 @@ Related: [GLOSSARY.md](./GLOSSARY.md) for names, [adr/](./adr/) for decisions al
 
 22. **A visual usage section** (decided in Round 4). The ground rules get their own section on Brand resources, shown visually rather than as a block of text: do and don't pictures, clear-space and minimum-size diagrams, the approved backgrounds for each mark, and how to sit next to another company's logo. Prototype a few versions. Once one is chosen, build a matching usage section in the Figma file. Decided in Round 4 (ADR 0004): the design system README holds the wording and numbers. The site draws most do-and-don't pictures from the mark files. The Figma file mirrors them and is the master only for realistic scenes. The approved backgrounds are on the Figma Playground board "For approval · Approved backgrounds (D4)". Also show one gold deep on Ink example for a visual check; it stays off the approved list for now.
 
+    **Built in Figma** (21 October 2026): the **Usage rules** page, node `823:2`, mirrors version 2 · Spec plates. Its frames are named `Usage/{rule-id}`.
+
 ## Color
 
 11. **Add a role to each swatch.** Borrow the Spec Sheet's role column ("Navy deep: headings, link color"). Roles are what a contractor needs to apply the palette correctly.
@@ -83,12 +85,12 @@ Related: [GLOSSARY.md](./GLOSSARY.md) for names, [adr/](./adr/) for decisions al
 
 ## Decisions from the prototype
 
-Canyon picked these on 21 October 2026 in the prototype (branch `prototype/brand-resources`), which now opens on them. Under [ADR 0001](./adr/0001-design-system-artifact-is-the-master.md), anything below that is brand wording or a brand number goes into the design system before the production site uses it. That covers the minimum sizes, the "use it for" lines and the two-tone and reversed notes.
+Canyon picked these on 21 October 2026 in the prototype (branch `prototype/brand-resources`), which now opens on them. Under [ADR 0001](./adr/0001-design-system-artifact-is-the-master.md), anything below that is brand wording or a brand number goes into the design system before the production site uses it. The minimum sizes, the "use it for" lines and the two-tone and reversed notes went in on 21 October 2026, in the design system's version 14, with Canyon's approval; the wording was tightened there, so the design system is the reference.
 
 | Item | Choice | Pick |
 |---|---|---|
 | 1 | Usage guidance | **Inline "Usage" disclosure** per plate (`<details>`), plus one visible caption of eight words or fewer per version. |
-| 2 | Navigation | **Top bar with section links; no index pills.** With nine links, the bar folds into the two-bar menu below about 1080 px rather than the design system's 900 px; the label "Brand resources" beside the wordmark hides below 1240 px. |
+| 2 | Navigation | **Top bar with section links; no index pills.** The menu folds at the design system's 900 px. To fit, the top bar drops the "Brand resources" label beside the wordmark (the hero names the page) and labels the Iconography link "Icons"; with spacing in a drawer, the eight links fit at 901 px with 61 px to spare. If sections outgrow the bar, merge links rather than move the breakpoint. No exception or ADR. |
 | 4 | Spacing, radius & shadows | **Folded into one drawer**, "Spacing, radius & shadows · for web contractors", with no section number. |
 | 5 | Logo files layout | **A · Paired plates.** |
 | 5 (Q23) | Main pair for the lockups | **Navy ink + light gold**, the same as the wordmark and glyph. Two-tone and reversed get their own section (below). |
@@ -96,13 +98,13 @@ Canyon picked these on 21 October 2026 in the prototype (branch `prototype/brand
 | 9 | Hero download button | **A zip per form**, from a "Download logos" menu: all 28 marks, wordmarks, horizontal lockups, stacked lockups, glyphs, tiles and bars. |
 | 12 | CMYK values | **Left off the page** until [issue #2](https://github.com/compass-design-studio/brand-site/issues/2) settles print values. The page says print values come once proofed, and to ask the studio. |
 | 13 | Small labels | **Ink with a short gold tick** before eyebrows and small labels. |
-| 14 | Request trigger | **A filled button** (Ink) at the page close, **plus a second entry in the top bar** ("Request a file", outline). The design system's page anatomy says a page close is "never a filled button", so the design system needs updating first, or an ADR recording this page-level difference (ADR 0001). The 1080 px menu breakpoint in item 2 is the same kind of difference. |
+| 14 | Request trigger | **A filled button** (Ink) at the page close, **plus a second entry in the top bar** ("Request a file", outline). Allowed by the design system since version 16: a page close uses an arrow link by default and a filled button when it starts something, like a form; and one filled button per view, not counting the nav. Canyon's view that "never" was too strict held up in [research/button-emphasis.md](./research/button-emphasis.md). |
 | 15 | Request form | **C · Request type first.** Step 1: a missing file, a correction or a question. Step 2 asks only what that type needs, then name and email. |
 | 16 | Website example | **A real screenshot** of compass-design.studio (desktop and phone). It needs retaking when the live site changes. |
 | 18 | Email signature | **Fill in name and title**, with a live preview and "Copy signature" (rich text for Gmail and Outlook). |
-| 22 | Usage rules section | **2 · Spec plates**: numbered plates for start here, clear space, minimum size, approved backgrounds (with the gold deep on Ink check), photos, other companies' logos (diagram and drawn job-site sign), don'ts, and colors and who may use the marks. |
+| 22 | Usage rules section | **2 · Spec plates**: numbered plates for start here, clear space, minimum size, approved backgrounds (gold deep on Ink is not approved and isn't shown as a visual check: light gold is the gold for Ink), photos, other companies' logos (diagram and drawn job-site sign), don'ts, and colors and who may use the marks. |
 
-**Minimum sizes (proposed, for the design system):**
+**Minimum sizes** (in the design system since 21 October 2026; below them, switch to navy ink, then step down):
 
 | Mark | Navy ink, paper, light gold, reversed | Two-tone, gold deep |
 |---|---|---|
@@ -119,13 +121,20 @@ Canyon wants the two-tone and reversed marks on the site for special uses, espec
 
 - **Where:** a "Two-tone and reversed · For special moments" section inside Logo files, after the four form plates and before tiles and bars. It's drawn on the full drafting plate (60/60/16 corners) so it reads as a feature, not a fifth form.
 - **What it shows:** the two-tone stacked lockup on Paper beside the reversed one on Ink, three flat examples (a proposal cover, a title slide on Ink, a typographic social post), the notes below, and all six files with "All 6 · zip". The form plates' "more colorways" disclosures now list only gold deep and paper, and point to this section, so each file appears once.
-- **Draft notes, for the design system:**
+- **The notes** (now in the design system, in shorter wording):
   - **Use them for** covers, title pages and slides, stationery, signage panels and typographic social posts: flat, type-led layouts where the gold glyph can carry the page.
   - **One per piece**, as its main mark. Running heads, footers and small repeats use navy ink or light gold.
-  - **Two-tone on Paper or white. Reversed on solid Ink.** This narrows reversed, which the design system also approves on dark areas of photos; keep photos for light gold and paper.
+  - **Two-tone on Paper or white. Reversed on solid Ink.** The design system now approves reversed on Ink only; photos are for light gold and paper.
   - **Large:** at or above the two-tone minimums above. Smaller, use navy ink.
   - **In print, proof two-tone first:** gold deep is only 3.18:1 on Paper (ADR 0004).
   - **Not for** photos, textures or watercolors behind the mark, Paper 2 or Tan (2.91:1 and 2.74:1), or everyday documents and small sizes.
+
+### Later decisions (21 October 2026)
+
+- **Gold deep on Ink is out.** It passes 3:1 (4.21:1), but light gold is better on Ink and there's no reason to use gold deep there. It stays off the approved list and the site doesn't show it as a visual check.
+- **Reversed is approved on Ink only** (design system version 14, and the glossary's colorway entry).
+- **Filled buttons are rationed, not banned** (design system version 16). The README's page close, the PageClose and Button notes, and a new line under Visual foundations now say: one per view, for the main action, not counting the nav; a page close may use one when it starts something, like a form. The live site's Home, Studio and Process closes ("View projects →") only navigate, so they become arrow links (compass-marketing-v1 #13).
+- **The menu stays at 900 px.** The fix is in the top bar's content, not the breakpoint (item 2).
 
 ### Settled without a choice
 
