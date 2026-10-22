@@ -82,7 +82,8 @@ export type MailConfig = { apiKey?: string; from: string; to: string[]; dryRun: 
 export function mailConfig(env: NodeJS.ProcessEnv = process.env): MailConfig {
   return {
     apiKey: env.RESEND_API_KEY || undefined,
-    from: env.REQUEST_FROM_EMAIL || 'Brand resources <brand@compass-design.studio>',
+    // Resend's verified sending domain is send.compass-design.studio, not the root domain.
+    from: env.REQUEST_FROM_EMAIL || 'Brand resources <brand@send.compass-design.studio>',
     to: (env.REQUEST_TO_EMAIL || 'allison@compass-design.studio,canyon@compass-design.studio')
       .split(',')
       .map((s) => s.trim())

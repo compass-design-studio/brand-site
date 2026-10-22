@@ -29,7 +29,7 @@ Copy `.env.example` to `.env.local`. Keys live only in environment variables, ne
 | Variable | What it does |
 |---|---|
 | `RESEND_API_KEY` | From the marketing site's Resend account. Without it, the form says it isn't connected yet and points people to the founders' email. |
-| `REQUEST_FROM_EMAIL` | Optional. Default `Brand resources <brand@compass-design.studio>`; the domain must be verified in Resend. |
+| `REQUEST_FROM_EMAIL` | Optional. Default `Brand resources <brand@send.compass-design.studio>`; the domain must be verified in Resend (send.compass-design.studio is). |
 | `REQUEST_TO_EMAIL` | Optional, comma-separated. Default allison@ and canyon@compass-design.studio. |
 | `REQUEST_FORM_SECRET` | Optional. Signs the fill-time token; falls back to `RESEND_API_KEY`. |
 | `REQUEST_DRY_RUN` | `1` logs the email instead of sending it. |
