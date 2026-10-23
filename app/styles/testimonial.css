@@ -1,0 +1,649 @@
+/* The testimonial page (/testimonial): a stepped guide on a white plate. Every class is prefixed
+   .tst-. Tokens only (tokens.css), and small text in Ink, Navy deep or --muted (ADR 0002): gold
+   is for rules, ticks and borders. Phones first: 375 px, 44 px targets, 16 px inputs. */
+
+/* ---------- Page ---------- */
+
+.tst-page { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+.tst-main { flex: 1; outline: none; }
+.tst-page :is(h1, h2, h3, h4)[tabindex='-1']:focus { outline: none; }
+
+.tst-masthead { background: var(--paper); border-bottom: 1px solid var(--rule); }
+.tst-masthead__in { display: flex; align-items: center; height: 60px; }
+.tst-masthead__brand { display: inline-flex; align-items: center; min-height: 44px; }
+.tst-masthead__brand img { width: auto; height: 18px; }
+
+/* ---------- Building blocks ---------- */
+
+/* The drafting plate: Ink with the drafting texture. Put .on-dark on it for light text and focus rings. */
+.tst-ink { background: var(--ink) var(--texture-drafting); color: var(--paper); }
+.tst-ink :is(h1, h2, h3) { color: var(--paper); }
+
+/* Fade and an 8 px rise, for anything that appears. */
+.tst-in { animation: tst-in var(--dur) var(--ease) both; }
+@keyframes tst-in { from { opacity: 0; transform: translateY(8px); } }
+
+/* A text button: secondary actions that aren't links. */
+.tst-textbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 2px;
+  border: 0;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy-deep);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(31, 74, 102, 0.45);
+  cursor: pointer;
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+.tst-textbtn:hover { text-decoration-color: var(--gold); }
+.tst-textbtn:disabled { cursor: default; opacity: 0.6; }
+
+/* Status chips: Not sent yet, Sending, Sent, All set. */
+.tst-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  min-height: 26px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.tst-chip svg { flex: none; }
+.tst-chip--ok { background: var(--white); box-shadow: inset 0 0 0 1px currentColor; color: var(--ok); }
+.tst-chip--live { background: var(--ink); color: var(--paper); }
+.tst-chip--live svg { color: var(--light-gold); }
+.tst-chip--quiet { background: var(--white); box-shadow: inset 0 0 0 1px var(--rule-strong); color: var(--navy-deep); }
+
+/* A small Ink label with a gold tick, for sub-groups inside a step. */
+.tst-subhead { display: flex; align-items: center; gap: 10px; margin: 0; font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; line-height: 1.5; color: var(--ink); }
+.tst-subhead::before { content: ''; flex: none; width: 16px; height: 1px; background: var(--gold); }
+
+/* ---------- Column ---------- */
+
+.tst { padding-top: clamp(20px, 4vw, 48px); padding-bottom: clamp(40px, 6vw, 72px); }
+.tst-col { display: flex; flex-direction: column; gap: clamp(16px, 2.4vw, 24px); width: 100%; max-width: 680px; margin: 0 auto; }
+
+/* ---------- Stepper ---------- */
+
+.tst-steps__list { display: none; margin: 0; padding: 0; list-style: none; }
+.tst-steps__compact { display: flex; flex-direction: column; gap: 10px; padding: 0 4px; }
+.tst-steps__compact p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: 13px; line-height: 1.4; color: var(--ink); }
+.tst-steps__compact b { font-weight: 600; color: var(--navy-deep); }
+.tst-rule { position: relative; display: block; height: 2px; overflow: hidden; border-radius: 2px; background: var(--rule); }
+.tst-rule > span { position: absolute; inset: 0; background: var(--gold); transform-origin: left center; transition: transform var(--dur) var(--ease); }
+
+@media (min-width: 720px) {
+  .tst-steps__list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .tst-steps__compact { display: none; }
+}
+
+.tst-steps__item { position: relative; display: flex; justify-content: center; min-width: 0; }
+/* The connector into each step: gold once the step before it is done. */
+.tst-steps__item + .tst-steps__item::before {
+  content: '';
+  position: absolute;
+  top: 21px;
+  right: calc(50% + 22px);
+  left: calc(-50% + 22px);
+  height: 1px;
+  background: var(--rule-strong);
+  transition: background-color var(--dur) var(--ease);
+}
+.tst-steps__item.is-linked::before { background: var(--gold); }
+.tst-steps__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 6px 6px 4px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  text-align: center;
+  color: inherit;
+}
+button.tst-steps__btn { cursor: pointer; }
+.tst-steps__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--muted);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.tst-steps__label {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color var(--dur) var(--ease), text-decoration-color var(--dur) var(--ease);
+}
+.tst-steps__item.is-done .tst-steps__dot { border-color: var(--navy-deep); background: var(--navy-deep); color: var(--white); }
+.tst-steps__item.is-done .tst-steps__label { color: var(--ink); }
+.tst-steps__item.is-current .tst-steps__dot { border-color: var(--ink); background: var(--ink); color: var(--paper); box-shadow: 0 0 0 4px var(--paper), 0 0 0 5px var(--gold); }
+.tst-steps__item.is-current .tst-steps__label { font-weight: 600; color: var(--ink); }
+button.tst-steps__btn:hover .tst-steps__label { text-decoration-color: var(--gold); }
+button.tst-steps__btn:hover .tst-steps__dot { border-color: var(--navy-deep); }
+
+/* ---------- The plate, with the steps still to come peeking out beneath it ---------- */
+
+.tst-sheet { position: relative; padding-bottom: 14px; }
+.tst-sheet__under {
+  position: absolute;
+  right: 18px;
+  bottom: 7px;
+  left: 18px;
+  height: 56px;
+  border: 1px solid var(--rule);
+  border-radius: 0 0 16px 16px;
+  background: var(--white);
+  box-shadow: var(--shadow-1);
+  opacity: 0;
+  transform: translateY(-7px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.tst-sheet__under--2 { right: 36px; bottom: 0; left: 36px; }
+.tst-sheet[data-stack='1'] .tst-sheet__under--1,
+.tst-sheet[data-stack='2'] .tst-sheet__under { opacity: 1; transform: none; }
+
+.tst-plate {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-plate);
+  background: var(--white);
+  box-shadow: var(--shadow-3);
+}
+@media (max-width: 640px) { .tst-plate { border-radius: var(--radius-plate-sm); } }
+
+.tst-body { display: flex; flex-direction: column; gap: 28px; min-width: 0; padding: clamp(28px, 6vw, 52px) clamp(20px, 6vw, 56px) clamp(28px, 5vw, 40px); }
+
+.tst-head { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.tst-title { font-size: clamp(28px, 6.4vw, 38px); line-height: 1.1; text-wrap: balance; }
+.tst-title--hero { font-size: clamp(36px, 9.6vw, 56px); line-height: 1.02; }
+.tst-lead { max-width: 34em; font-size: 16px; line-height: 1.55; color: var(--ink); }
+
+/* ---------- Actions: the plate's foot on desktop, a sticky bar on phones ---------- */
+
+.tst-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px clamp(20px, 6vw, 56px) 22px;
+  border-top: 1px solid var(--rule);
+  border-radius: 0 0 15px 15px;
+  background: var(--paper);
+}
+.tst-actions__row { display: flex; align-items: center; gap: 12px; }
+.tst-actions__main { display: flex; align-items: center; margin-left: auto; }
+.tst-back { padding-right: 8px; }
+.tst-primary { min-height: 48px; padding-inline: 26px; }
+.tst-primary[aria-disabled='true'],
+.tst-primary[aria-disabled='true']:hover { cursor: not-allowed; opacity: 0.45; filter: none; }
+.tst-primary[aria-disabled='true']:active { transform: none; }
+.tst-actions .tst-pickbtn { align-self: auto; min-height: 48px; }
+.tst-hint { font-size: 13px; line-height: 1.45; text-align: right; color: var(--ink); }
+/* About the chosen video: a refusal beside the fix, or a gentle note beside "Use this video".
+   Phones only: on desktop the card shows the same note right beside the preview. */
+.tst-hint--problem,
+.tst-hint--note,
+.tst-hint--off { display: none; align-items: flex-start; gap: 8px; text-align: left; }
+.tst-hint--off { display: flex; }
+.tst-hint--problem svg,
+.tst-hint--note svg,
+.tst-hint--off svg { flex: none; margin-top: 2px; }
+.tst-hint--problem svg { color: var(--no); }
+.tst-hint--note svg,
+.tst-hint--off svg { color: var(--navy-deep); }
+
+@media (max-width: 719px) {
+  .tst-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+  .tst-actions__main { flex: 1; min-width: 0; }
+  /* Long labels ("Choose a different one") wrap rather than push the bar past the screen. */
+  .tst-actions__main > .btn { flex: 1; min-width: 0; white-space: normal; text-align: center; }
+  .tst-hint { text-align: left; }
+  .tst-hint--problem,
+  .tst-hint--note { display: flex; }
+  /* A field that takes focus (Tab, or the first error) scrolls clear of the sticky bar instead
+     of stopping behind it (WCAG 2.4.11). */
+  html:has(.tst-actions) { scroll-padding-bottom: calc(160px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ---------- 1. Welcome ---------- */
+
+.tst-facts { container-type: inline-size; }
+.tst-facts ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.tst-fact { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); }
+.tst-fact__icon { display: flex; flex: none; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--white); box-shadow: inset 0 0 0 1px var(--rule); color: var(--navy-deep); }
+.tst-fact__label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; line-height: 1.4; color: var(--muted); }
+.tst-fact__value { display: block; font-family: var(--font-display); font-size: 17px; line-height: 1.3; letter-spacing: 0.02em; color: var(--navy-deep); }
+@container (min-width: 480px) {
+  .tst-facts ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tst-fact { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
+}
+
+/* Who's recording: a segmented radio group. */
+.tst-who { min-width: 0; margin: 0; padding: 0; border: 0; }
+.tst-who__legend { margin-bottom: 10px; padding: 0; font-size: 13px; font-weight: 500; color: var(--ink); }
+.tst-seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+  max-width: 400px;
+  padding: 4px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-2);
+}
+.tst-seg__opt { position: relative; display: block; }
+.tst-seg__input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.tst-seg__face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: background-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.tst-seg__opt:hover .tst-seg__face { background: color-mix(in srgb, var(--white) 55%, transparent); }
+.tst-seg__input:checked + .tst-seg__face { background: var(--white); box-shadow: 0 0 0 1px var(--rule), var(--shadow-2); color: var(--navy-deep); font-weight: 600; }
+.tst-seg__input:focus-visible + .tst-seg__face { outline: 2px solid var(--navy-deep); outline-offset: 2px; }
+
+.tst-howuse { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-left: 2px solid var(--gold); border-radius: 0 10px 10px 0; background: var(--paper); font-size: 14px; line-height: 1.55; color: var(--ink); }
+.tst-howuse svg { flex: none; margin-top: 2px; color: var(--navy-deep); }
+.tst-skip { align-self: flex-start; margin-top: -10px; }
+
+/* ---------- 2. Ideas ---------- */
+
+.tst-prompts { display: flex; flex-direction: column; gap: 28px; }
+
+.tst-opener { display: flex; align-items: flex-start; gap: 16px; font-size: 16px; line-height: 1.5; color: var(--ink); }
+.tst-opener__icon { display: flex; flex: none; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--tan); color: var(--navy-deep); }
+.tst-opener > span:last-child { padding-top: 1px; }
+.tst-opener__tag { display: block; margin-bottom: 2px; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: var(--ink); }
+
+/* Three beats: a vertical run on phones, three across when there's room. */
+.tst-beatsbox { container-type: inline-size; }
+.tst-beats { display: grid; margin: 0; padding: 0; list-style: none; }
+.tst-beat { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 16px; padding-bottom: 28px; }
+.tst-beat:last-child { padding-bottom: 0; }
+.tst-beat::before { content: ''; position: absolute; top: 48px; bottom: 8px; left: 19.5px; width: 1px; background: var(--gold); }
+.tst-beat:last-child::before { display: none; }
+.tst-beat__num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gold-deep);
+  border-radius: 50%;
+  background: var(--white);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--navy-deep);
+}
+.tst-beat__body { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding-top: 2px; }
+.tst-beat__word { font-family: var(--font-display); font-size: clamp(28px, 8vw, 34px); line-height: 1.05; letter-spacing: 0.02em; color: var(--navy-deep); }
+.tst-beat__prompt { font-size: 16px; line-height: 1.5; color: var(--ink); }
+.tst-beat__hint { font-size: 14px; line-height: 1.5; color: var(--muted); }
+@container (min-width: 640px) {
+  .tst-beats { grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .tst-beat { grid-template-columns: 1fr; gap: 16px; padding-bottom: 0; }
+  .tst-beat::before { top: 19.5px; right: -20px; bottom: auto; left: 52px; width: auto; height: 1px; }
+}
+
+/* Short on time, and the nudge. */
+.tst-short { border-top: 1px solid var(--rule); }
+.tst-short > summary { gap: 10px; }
+.tst-short__icon { flex: none; color: var(--navy-deep); }
+.tst-short .tog,
+.tst-details .tog { margin-left: auto; }
+.tst-short__q { max-width: 28em; font-family: var(--font-display); font-size: 20px; line-height: 1.35; letter-spacing: 0.02em; color: var(--navy-deep); }
+
+.tst-nudge { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 12px; background: var(--paper-2); font-size: 15px; line-height: 1.5; color: var(--ink); }
+.tst-nudge svg { flex: none; margin-top: 2px; color: var(--gold-deep); }
+
+/* ---------- 3. Get ready ---------- */
+
+/* The cue card: an index card to screenshot. */
+.tst-cue-wrap { display: flex; justify-content: center; }
+.tst-cue {
+  width: 100%;
+  max-width: 460px;
+  margin: 0;
+  padding: 20px 22px 16px;
+  border: 1px solid var(--rule-strong);
+  border-top: 3px solid var(--gold);
+  border-radius: 3px 3px 10px 10px;
+  background: var(--white);
+  box-shadow: var(--shadow-2);
+}
+.tst-cue__title { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; line-height: 1.5; color: var(--ink); }
+.tst-cue__title::before { content: ''; flex: none; width: 16px; height: 1px; background: var(--gold); }
+.tst-cue__list { display: flex; flex-direction: column; margin: 10px 0 0; padding: 0; list-style: none; }
+.tst-cue__list li { display: grid; grid-template-columns: 26px 1fr; align-items: baseline; gap: 12px; padding: 12px 0; border-top: 1px solid var(--rule); }
+.tst-cue__list li:first-child { padding-top: 6px; border-top: 0; }
+.tst-cue__n { font-family: var(--font-display); font-size: 22px; line-height: 1; color: var(--navy-deep); }
+.tst-cue__line { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 15px; line-height: 1.45; color: var(--ink); }
+.tst-cue__line--small { font-size: 14px; }
+.tst-cue__word { font-family: var(--font-display); font-size: 22px; line-height: 1.2; letter-spacing: 0.02em; color: var(--navy-deep); }
+.tst-cue__sub { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.tst-cue__hint { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--rule-strong); font-size: 13px; line-height: 1.4; color: var(--ink); }
+.tst-cue__hint svg { flex: none; color: var(--navy-deep); }
+@media (min-width: 720px) {
+  .tst-cue { padding: 24px 28px 18px; }
+  .tst-cue__word { font-size: 24px; }
+}
+
+.tst-setup { container-type: inline-size; }
+.tst-setup__in { display: grid; align-items: center; gap: 20px; }
+.tst-setup__drawing { width: 100%; max-width: 240px; margin: 0 auto; }
+.tst-setup__side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+@container (min-width: 500px) { .tst-setup__in { grid-template-columns: minmax(0, 210px) minmax(0, 1fr); gap: 32px; } }
+
+.tst-framing { width: 100%; max-width: 320px; height: auto; }
+
+.tst-checklist { min-width: 0; }
+.tst-checklist__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-height: 26px; margin-bottom: 10px; }
+.tst-checklist__status { display: flex; }
+.tst-checklist__list { display: flex; flex-direction: column; gap: 6px; }
+.tst-checklist__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 16px 6px 7px;
+  border: 1px solid var(--field-border);
+  border-radius: 999px;
+  background: var(--white);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.tst-checklist__item input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.tst-checklist__item:hover { border-color: var(--gold-deep); }
+.tst-checklist__item:has(input:focus-visible) { outline: 2px solid var(--navy-deep); outline-offset: 2px; }
+.tst-checklist__item.is-on { border-color: var(--navy-deep); box-shadow: inset 0 0 0 1px var(--navy-deep); }
+.tst-checklist__icon { display: flex; flex: none; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--paper-2); color: var(--navy-deep); transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
+.tst-checklist__item.is-on .tst-checklist__icon { background: var(--navy-deep); color: var(--white); }
+.tst-checklist__title { font-size: 14px; font-weight: 500; line-height: 1.35; color: var(--ink); }
+
+.tst-easy { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 0; padding: 0; list-style: none; }
+.tst-easy li { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--paper-2); font-size: 13px; line-height: 1.35; color: var(--ink); }
+.tst-easy svg { flex: none; color: var(--ok); }
+
+/* "Record it in your camera app": the one Ink moment, right above "I've recorded it". */
+.tst-record { display: flex; align-items: flex-start; gap: 16px; padding: 22px 22px 20px; border-radius: 28px 28px 12px 12px; }
+.tst-record__icon { display: flex; flex: none; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--rule-on-dark); border-radius: 50%; color: var(--light-gold); }
+.tst-record__text { min-width: 0; }
+.tst-record__title { font-size: 21px; line-height: 1.2; }
+.tst-record__body { margin-top: 8px; font-size: 15px; line-height: 1.55; color: var(--paper); }
+.tst-record__keep { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; line-height: 1.45; color: var(--muted-on-dark); }
+.tst-record__keep svg { flex: none; color: var(--light-gold); }
+@media (max-width: 420px) { .tst-record { flex-direction: column; gap: 12px; } }
+
+.tst-smallask { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.5; color: var(--ink); }
+.tst-smallask svg { flex: none; margin-top: 3px; color: var(--navy-deep); }
+
+/* ---------- 4. Your video ---------- */
+
+.tst-pickbtn { align-self: flex-start; }
+
+.tst-vcard { container-type: inline-size; }
+.tst-vcard__in { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+@container (min-width: 520px) { .tst-vcard__in { flex-direction: row; align-items: flex-start; gap: 28px; } }
+.tst-vframe { position: relative; flex: none; width: min(240px, 66vw); aspect-ratio: 9 / 16; overflow: hidden; border-radius: 22px; background: var(--ink); box-shadow: var(--shadow-3); animation: tst-in var(--dur) var(--ease) both; }
+.tst-vframe video { display: block; width: 100%; height: 100%; object-fit: contain; background: var(--ink); }
+.tst-vframe__calm { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 100%; padding: 20px; text-align: center; font-size: 13px; line-height: 1.45; color: var(--paper); }
+.tst-vframe__calm svg { color: var(--light-gold); }
+.tst-vframe__name { overflow-wrap: anywhere; color: var(--muted-on-dark); }
+.tst-spinner { width: 28px; height: 28px; border: 2px solid var(--rule-on-dark); border-top-color: var(--light-gold); border-radius: 50%; animation: tst-spin 900ms linear infinite; }
+@keyframes tst-spin { to { transform: rotate(360deg); } }
+
+.tst-vcard__side { display: flex; flex: 1; flex-direction: column; gap: 14px; width: 100%; min-width: 0; }
+.tst-vmeta { display: grid; grid-template-columns: auto auto minmax(0, 1fr); margin: 0; border: 1px solid var(--rule); border-radius: 12px; background: var(--white); }
+.tst-vmeta > div { min-width: 0; padding: 10px 14px; border-left: 1px solid var(--rule); }
+.tst-vmeta > div:first-child { border-left: 0; }
+.tst-vmeta dt { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: var(--muted); }
+.tst-vmeta dd { margin: 2px 0 0; font-size: 15px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tst-vmeta__file dd { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tst-emptymeta dd { color: var(--muted); }
+.tst-vcard__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+
+/* Notes: neutral on Paper 2, problems with a Danger rule. */
+.tst-notes { display: flex; flex-direction: column; gap: 8px; }
+.tst-note { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 10px; background: var(--paper-2); font-size: 14px; line-height: 1.5; color: var(--ink); animation: tst-in var(--dur) var(--ease) both; }
+.tst-note svg { flex: none; margin-top: 2px; color: var(--navy-deep); }
+.tst-note.is-problem { background: var(--white); box-shadow: inset 3px 0 0 var(--no), inset 0 0 0 1px var(--rule-strong); }
+.tst-note.is-problem svg { color: var(--no); }
+
+/* The empty slot where the preview will land: a pointer shortcut to "Choose your video". */
+.tst-slot {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(240px, 66vw);
+  aspect-ratio: 9 / 16;
+  padding: 24px;
+  border: 1.5px dashed var(--field-border);
+  border-radius: 22px;
+  background: var(--paper);
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.tst-slot:hover,
+.tst-slot.is-drag { border-style: solid; border-color: var(--gold-deep); background: var(--white); box-shadow: var(--shadow-2); }
+.tst-slot svg { color: var(--navy-deep); }
+
+/* ---------- 5. Sign off ---------- */
+
+.tst-signoff { container-type: inline-size; display: flex; flex-direction: column; gap: 22px; }
+.tst-terms { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.tst-terms li { display: grid; grid-template-columns: 18px 1fr; gap: 12px; font-size: 15px; line-height: 1.55; color: var(--ink); }
+.tst-terms svg { margin-top: 4px; color: var(--gold-deep); }
+.tst-details { margin-top: -8px; border-top: 1px solid var(--rule); }
+.tst-details__list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; color: var(--ink); }
+.tst-details__version { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
+.tst-naming { min-width: 0; margin: 0; padding: 0; border: 0; }
+.tst-naming legend { margin-bottom: 10px; padding: 0; font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--ink); }
+.tst-radios { display: flex; flex-direction: column; gap: 8px; }
+.tst-radio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 10px 16px;
+  border: 1px solid var(--field-border);
+  border-radius: 10px;
+  background: var(--white);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.tst-radio input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.tst-radio:hover { border-color: var(--gold-deep); }
+.tst-radio.is-on { border-color: var(--navy-deep); box-shadow: inset 0 0 0 1px var(--navy-deep); }
+.tst-radio:has(input:focus-visible) { outline: 2px solid var(--navy-deep); outline-offset: 2px; }
+.tst-radio__dot { position: relative; flex: none; width: 22px; height: 22px; border: 1.5px solid var(--field-border); border-radius: 50%; background: var(--white); transition: border-color var(--dur) var(--ease); }
+.tst-radio__dot::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--navy-deep); transform: scale(0); transition: transform var(--dur) var(--ease); }
+.tst-radio.is-on .tst-radio__dot { border-color: var(--navy-deep); }
+.tst-radio.is-on .tst-radio__dot::after { transform: scale(1); }
+.tst-radio__text { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
+.tst-radio__label { font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--ink); }
+.tst-radio__ex { font-size: 13px; line-height: 1.4; color: var(--muted); }
+
+.tst-fields { display: grid; gap: 18px; }
+@container (min-width: 560px) { .tst-fields { grid-template-columns: 1fr 1fr; align-items: start; } }
+.tst-field input { min-height: 48px; font-size: 16px; }
+.tst-field__hint { font-size: 13px; line-height: 1.45; color: var(--muted); }
+
+.tst-agree { display: flex; flex-direction: column; gap: 8px; }
+.tst-check {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 44px;
+  padding: 14px 16px;
+  border: 1px solid var(--field-border);
+  border-radius: 10px;
+  background: var(--white);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.tst-check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.tst-check:hover { border-color: var(--gold-deep); }
+.tst-check:has(input:focus-visible) { outline: 2px solid var(--navy-deep); outline-offset: 2px; }
+.tst-check.is-on { border-color: var(--navy-deep); box-shadow: inset 0 0 0 1px var(--navy-deep); }
+.tst-agree.is-invalid .tst-check { border-color: var(--no); box-shadow: inset 0 0 0 1px var(--no); }
+.tst-check__box { display: flex; flex: none; align-items: center; justify-content: center; width: 24px; height: 24px; margin-top: 1px; border: 1.5px solid var(--field-border); border-radius: 6px; background: var(--white); color: var(--white); transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+.tst-check__box svg { opacity: 0; transform: scale(0.5); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+.tst-check.is-on .tst-check__box { border-color: var(--navy-deep); background: var(--navy-deep); }
+.tst-check.is-on .tst-check__box svg { opacity: 1; transform: none; }
+.tst-check__text { font-size: 15px; line-height: 1.5; color: var(--ink); }
+
+/* What's about to be sent, right above "Agree and send". */
+.tst-vsum-wrap { container-type: inline-size; display: flex; flex-direction: column; gap: 10px; }
+.tst-vsum__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.tst-vsum {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 2px 14px;
+  padding: 10px 14px 6px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--paper);
+  transition: background-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.tst-vsum.is-problem { border-color: var(--rule-strong); background: var(--white); box-shadow: inset 3px 0 0 var(--no); }
+.tst-vsum__thumb { display: flex; grid-row: 1 / span 2; align-items: center; justify-content: center; width: 40px; aspect-ratio: 9 / 16; overflow: hidden; border-radius: 8px; background: var(--ink); color: var(--light-gold); }
+.tst-vsum__thumb video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.tst-vsum__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding-top: 2px; }
+.tst-vsum__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--ink); }
+.tst-vsum__meta { font-size: 13px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tst-vsum__btn { justify-self: start; }
+@container (min-width: 440px) {
+  .tst-vsum { grid-template-columns: 44px minmax(0, 1fr) auto; padding: 10px 16px 10px 10px; }
+  .tst-vsum__thumb { grid-row: auto; width: 44px; }
+  .tst-vsum__btn { justify-self: end; }
+}
+
+/* ---------- Sending ---------- */
+
+.tst-sending { container-type: inline-size; }
+.tst-sending__in { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+@container (min-width: 480px) { .tst-sending__in { flex-direction: row; align-items: center; gap: 32px; } }
+.tst-sending__frame { position: relative; flex: none; width: min(170px, 46vw); aspect-ratio: 9 / 16; overflow: hidden; border-radius: 20px; background: var(--ink) var(--texture-drafting); box-shadow: var(--shadow-3); }
+.tst-sending__still { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--light-gold); }
+.tst-sending__still video { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Dense enough that Paper and Light gold hold their contrast over a bright, window-lit still. */
+.tst-sending__veil { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--ink) 72%, transparent); color: var(--paper); transition: background-color var(--dur) var(--ease); }
+.tst-sending__frame.is-failed .tst-sending__veil { background: color-mix(in srgb, var(--ink) 82%, transparent); color: var(--light-gold); }
+.tst-sending__pct { font-family: var(--font-display); font-size: 40px; line-height: 1; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.tst-sending__bar { position: absolute; right: 0; bottom: 0; left: 0; height: 4px; background: var(--light-gold); transform-origin: left center; transition: transform 120ms linear; }
+.tst-sending__side { display: flex; flex: 1; flex-direction: column; gap: 14px; width: 100%; min-width: 0; }
+.tst-sending__file { display: flex; align-items: baseline; gap: 10px; min-width: 0; font-size: 14px; line-height: 1.45; color: var(--ink); }
+.tst-sending__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.tst-sending__size { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.tst-upload__box { display: flex; flex-direction: column; gap: 12px; padding: 18px; border: 1px solid var(--rule); border-radius: 14px; background: var(--white); box-shadow: var(--shadow-1); animation: tst-in var(--dur) var(--ease) both; }
+.tst-upload__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.tst-upload__nums { font-size: 15px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tst-bar { position: relative; height: 8px; overflow: hidden; border-radius: 999px; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--rule); }
+.tst-bar__fill { position: absolute; inset: 0; border-radius: inherit; background: var(--navy-deep); transform-origin: left center; transition: transform 120ms linear, background-color var(--dur) var(--ease); }
+.tst-upload__box.is-failed .tst-bar__fill { background: var(--no); }
+.tst-upload__box .tst-note { animation: none; }
+.tst-upload__keep { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.45; color: var(--ink); }
+.tst-upload__keep svg { flex: none; color: var(--navy-deep); }
+.tst-upload__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+
+/* ---------- Sent ---------- */
+
+.tst-sent { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; animation: tst-in var(--dur) var(--ease) both; }
+.tst-sent__tick { width: 56px; height: 56px; }
+.tst-sent__title { font-size: clamp(30px, 7vw, 42px); line-height: 1.1; }
+.tst-sent__body { max-width: 32em; font-size: 16px; line-height: 1.55; color: var(--ink); }
+.tst-sent__another { margin-top: 4px; }
+.tst-sent__sign { display: flex; align-items: flex-start; gap: 16px; max-width: 34em; margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--gold); font-size: 15px; line-height: 1.55; color: var(--ink); }
+.tst-sent__glyph { flex: none; width: 24px; height: auto; margin-top: 2px; }
+.tst-sent__signature { margin-top: 6px; font-family: var(--font-display); font-size: 18px; letter-spacing: 0.02em; color: var(--navy-deep); }
+
+/* What happens next: a three-point timeline between the thank-you and our sign-off. */
+.tst-next { container-type: inline-size; display: flex; flex-direction: column; gap: 16px; align-self: stretch; margin-top: 12px; padding: 20px; border-radius: 14px; background: var(--paper); }
+.tst-next__list { display: grid; margin: 0; padding: 0; list-style: none; }
+.tst-next__item { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 14px; padding-bottom: 16px; }
+.tst-next__item:last-child { padding-bottom: 0; }
+.tst-next__item:not(:last-child)::before { content: ''; position: absolute; top: 34px; bottom: 4px; left: 14.5px; width: 1px; background: var(--gold); }
+.tst-next__dot { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 1px solid var(--gold-deep); border-radius: 50%; background: var(--white); font-family: var(--font-display); font-size: 15px; line-height: 1; color: var(--navy-deep); }
+.tst-next__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding-top: 4px; }
+.tst-next__title { font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--ink); }
+.tst-next__detail { font-size: 14px; line-height: 1.5; color: var(--muted); }
+@container (min-width: 540px) {
+  .tst-next__list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .tst-next__item { grid-template-columns: 1fr; gap: 10px; padding-bottom: 0; }
+  .tst-next__item:not(:last-child)::before { top: 14.5px; right: -10px; bottom: auto; left: 40px; width: auto; height: 1px; }
+}
+
+/* ---------- Below the plate: the quiet interview link ---------- */
+
+.tst-below { display: flex; justify-content: center; padding: 0 8px; }
+.tst-interview { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.tst-interview > svg { flex: none; margin-top: 3px; }
+.tst-interview a { padding: 4px 0; }
+.tst-interview__arrow { display: inline-block; margin-left: 2px; vertical-align: -1px; }

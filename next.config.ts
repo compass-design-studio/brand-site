@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+      {
+        // Client pages are unlisted (ADR 0005): the page's own robots tag says so too.
+        source: '/testimonial',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
     ]
   },
 }

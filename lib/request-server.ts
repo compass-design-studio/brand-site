@@ -12,25 +12,28 @@ export const MAX_TOKEN_AGE_MS = 24 * 60 * 60 * 1000
 const devSecret = randomBytes(32).toString('hex')
 
 export function tokenSecret(env: NodeJS.ProcessEnv = process.env): string {
-  return env.REQUEST_FORM_SECRET || env.RESEND_API_KEY || devSecret
+  return env.REQUEST_FORM_SECRET || env.RESEND_API_KEY || env.BLOB_READ_WRITE_TOKEN || devSecret
 }
 
-function sign(issuedAt: string, secret: string): string {
-  return createHmac('sha256', secret).update(`brand-request:${issuedAt}`).digest('base64url')
+/** What a token is for, so a request form token can't start an upload, or the other way round. */
+export type TokenPurpose = 'brand-request' | 'testimonial'
+
+function sign(issuedAt: string, secret: string, purpose: TokenPurpose): string {
+  return createHmac('sha256', secret).update(`${purpose}:${issuedAt}`).digest('base64url')
 }
 
-export function issueToken(now: number, secret: string): string {
+export function issueToken(now: number, secret: string, purpose: TokenPurpose = 'brand-request'): string {
   const issuedAt = String(now)
-  return `${issuedAt}.${sign(issuedAt, secret)}`
+  return `${issuedAt}.${sign(issuedAt, secret, purpose)}`
 }
 
 export type TokenCheck = 'ok' | 'too-fast' | 'expired' | 'invalid'
 
-export function checkToken(token: unknown, now: number, secret: string): TokenCheck {
+export function checkToken(token: unknown, now: number, secret: string, purpose: TokenPurpose = 'brand-request'): TokenCheck {
   if (typeof token !== 'string') return 'invalid'
   const [issuedAt, sig] = token.split('.')
   if (!issuedAt || !sig || !/^\d+$/.test(issuedAt)) return 'invalid'
-  const expected = Buffer.from(sign(issuedAt, secret))
+  const expected = Buffer.from(sign(issuedAt, secret, purpose))
   const given = Buffer.from(sig)
   if (expected.length !== given.length || !timingSafeEqual(expected, given)) return 'invalid'
   const age = now - Number(issuedAt)
@@ -92,13 +95,27 @@ export function mailConfig(env: NodeJS.ProcessEnv = process.env): MailConfig {
   }
 }
 
-export async function sendWithResend(config: MailConfig & { apiKey: string }, email: { subject: string; text: string }, replyTo: string): Promise<boolean> {
+export type SendOptions = {
+  replyTo?: string | string[]
+  /** Defaults to the founders (`config.to`). */
+  to?: string[]
+  /** Defaults to `config.from`. */
+  from?: string
+  /** Resend sends once per key, so a retried callback can't send the same email twice. */
+  idempotencyKey?: string
+}
+
+export async function sendWithResend(config: MailConfig & { apiKey: string }, email: { subject: string; text: string }, options: SendOptions = {}): Promise<boolean> {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: config.from, to: config.to, reply_to: replyTo, subject: email.subject, text: email.text }),
+    headers: {
+      Authorization: `Bearer ${config.apiKey}`,
+      'Content-Type': 'application/json',
+      ...(options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : {}),
+    },
+    body: JSON.stringify({ from: options.from ?? config.from, to: options.to ?? config.to, reply_to: options.replyTo, subject: email.subject, text: email.text }),
     signal: AbortSignal.timeout(10_000),
   })
-  if (!res.ok) console.error('Resend refused the request email', res.status, await res.text().catch(() => ''))
+  if (!res.ok) console.error('Resend refused the email', res.status, await res.text().catch(() => ''))
   return res.ok
 }
