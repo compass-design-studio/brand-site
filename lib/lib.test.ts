@@ -24,7 +24,7 @@ import {
   videoType,
   type SignOffInput,
 } from '@/lib/testimonial'
-import { CHUNK_BYTES, chunks, composeClientEmail, composeVideoEmail, driveFileName, parseTokenPayload, tokenPayloadFor, type UploadInfo } from '@/lib/testimonial-server'
+import { CHUNK_BYTES, chunks, clientKey, composeClientEmail, composeVideoEmail, parseTokenPayload, takeFileName, tokenPayloadFor, type UploadInfo } from '@/lib/testimonial-server'
 import { TESTIMONIAL_SIGN_OFF } from '@/content/site'
 
 const LOGOS = path.join(process.cwd(), 'public', 'logos')
@@ -247,18 +247,32 @@ describe('testimonial delivery', () => {
     expect(pieces).toEqual([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13]])
   })
 
-  it('names the Drive files by date and names', () => {
-    expect(driveFileName('Sam Lee', pathname)).toBe('2026-10-23 Sam Lee, selfie video.mov')
-    expect(driveFileName('Sam Lee', pathname.replace('.mov', '.txt'), 'sign-off')).toBe('2026-10-23 Sam Lee, sign-off.txt')
+  it('names the Drive files by date, the names the client typed, and the take', () => {
+    expect(takeFileName('Sam Lee', pathname, 1, 'video')).toBe('2026-10-23 Sam Lee, take 1.mov')
+    expect(takeFileName('Sam Lee', pathname, 2, 'sign-off')).toBe('2026-10-23 Sam Lee, take 2 sign-off.txt')
+  })
+
+  it('keeps one folder per client, keyed by their email', () => {
+    expect(clientKey('Sam@Example.com ', 'Sam Lee')).toBe(clientKey('sam@example.com', 'Sam and Jamie Lee'))
+    expect(clientKey('sam@example.com', 'Sam Lee')).not.toBe(clientKey('jamie@example.com', 'Sam Lee'))
+    expect(clientKey('sam@example.com', 'Sam Lee')).toHaveLength(32)
   })
 
   it('tells the founders where the video is, and quotes the sign-off', () => {
     const record = 'RECORD'
-    const copied = composeVideoEmail({ info, size: 184_000_000, drive: { kind: 'copied', link: 'https://drive.google.com/file/d/abc/view', blobDeleted: true }, pathname, record })
+    const copied = composeVideoEmail({
+      info,
+      size: 184_000_000,
+      drive: { kind: 'copied', link: 'https://drive.google.com/file/d/abc/view', folderLink: 'https://drive.google.com/drive/folders/f', take: 1, blobDeleted: true, madeNewHome: false },
+      pathname,
+      record,
+    })
     expect(copied.subject).toBe('Testimonial · Selfie video from Sam Lee')
     expect(copied.text).toContain('Video: IMG_0412.MOV, 184 MB, 0:58')
     expect(copied.text).toContain('Name it as: First names and town')
-    expect(copied.text).toContain('Google Drive: https://drive.google.com/file/d/abc/view')
+    expect(copied.text).toContain('Google Drive: https://drive.google.com/file/d/abc/view (take 1)')
+    expect(copied.text).toContain('Their folder: https://drive.google.com/drive/folders/f')
+    expect(copied.text).not.toContain("couldn't find its Client Testimonials folder")
     expect(copied.text).toContain('Vercel Blob: deleted, now that Drive has it.')
     expect(copied.text).toContain('RECORD')
     const failed = composeVideoEmail({ info, size: 184_000_000, drive: { kind: 'failed' }, pathname, record, downloadUrl: 'https://blob.test/v' })

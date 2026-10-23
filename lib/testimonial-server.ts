@@ -2,6 +2,7 @@
 // to the finished upload, the copy to Google Drive, the two emails and the Blob clean-up.
 // Keys come from environment variables only (see .env.example).
 
+import { createHash } from 'node:crypto'
 import { del, get, head, issueSignedToken, presignUrl, put } from '@vercel/blob'
 import { mailConfig, sendWithResend } from '@/lib/request-server'
 import { cleanText, firstNamesFrom, formatBytes, formatDuration, namingLabel, NAMINGS, signOffRecord, type SignOff } from '@/lib/testimonial'
@@ -48,9 +49,14 @@ export function driveConfig(env: NodeJS.ProcessEnv = process.env): DriveConfig |
 const DRIVE = 'https://www.googleapis.com/drive/v3/files'
 const DRIVE_UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files'
 const FOLDER_MIME = 'application/vnd.google-apps.folder'
-const FOLDER_NAME = 'Client selfie videos'
-/** The site finds its folder by this tag, so the folder can be renamed or moved. */
+const FOLDER_NAME = 'Client Testimonials'
+/** The site finds its folder by this tag, so the folder can be renamed or moved, into a shared drive too. */
 const FOLDER_TAG = { key: 'compassUse', value: 'testimonial-videos' }
+/** Each client's folder inside it carries this key, so a later take joins the first. */
+const CLIENT_KEY = 'compassClient'
+/** Every call works in shared drives as well as My Drive. */
+const ALL_DRIVES = { supportsAllDrives: 'true' }
+const SEARCH_ALL_DRIVES = { ...ALL_DRIVES, includeItemsFromAllDrives: 'true', corpora: 'allDrives' }
 /** Drive takes a resumable upload in pieces that are multiples of 256 KiB. */
 export const CHUNK_BYTES = 32 * 1024 * 1024
 
@@ -70,26 +76,60 @@ async function accessToken(config: DriveConfig): Promise<string> {
   return (await res.json()).access_token
 }
 
-/** The tagged folder in the account's My Drive, made on the first upload. The drive.file scope sees only what the site made. */
-async function folderId(auth: Auth): Promise<string> {
-  const q = `mimeType = '${FOLDER_MIME}' and appProperties has { key='${FOLDER_TAG.key}' and value='${FOLDER_TAG.value}' } and trashed = false`
-  const found = await fetch(`${DRIVE}?${new URLSearchParams({ q, fields: 'files(id)', pageSize: '1' })}`, { headers: auth, signal: AbortSignal.timeout(10_000) })
-  if (!found.ok) throw await failed('Drive folder search', found)
-  const id = (await found.json()).files?.[0]?.id
-  if (id) return id
-  const made = await fetch(`${DRIVE}?fields=id`, {
-    method: 'POST',
-    headers: { ...auth, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: FOLDER_NAME, mimeType: FOLDER_MIME, appProperties: { [FOLDER_TAG.key]: FOLDER_TAG.value } }),
-    signal: AbortSignal.timeout(10_000),
-  })
-  if (!made.ok) throw await failed('Drive folder create', made)
-  return (await made.json()).id
+type DriveItem = { id: string; webViewLink?: string }
+
+async function search(auth: Auth, q: string, pageSize = 1): Promise<DriveItem[]> {
+  const params = new URLSearchParams({ ...SEARCH_ALL_DRIVES, q, fields: 'files(id,webViewLink)', pageSize: String(pageSize) })
+  const res = await fetch(`${DRIVE}?${params}`, { headers: auth, signal: AbortSignal.timeout(10_000) })
+  if (!res.ok) throw await failed('Drive search', res)
+  return (await res.json()).files ?? []
 }
 
-async function openDrive(config: DriveConfig): Promise<{ auth: Auth; parent: string }> {
-  const auth = { Authorization: `Bearer ${await accessToken(config)}` }
-  return { auth, parent: await folderId(auth) }
+async function createFolder(auth: Auth, folder: { name: string; parent?: string; appProperties: Record<string, string> }): Promise<DriveItem> {
+  const res = await fetch(`${DRIVE}?${new URLSearchParams({ ...ALL_DRIVES, fields: 'id,webViewLink' })}`, {
+    method: 'POST',
+    headers: { ...auth, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: folder.name, mimeType: FOLDER_MIME, parents: folder.parent ? [folder.parent] : undefined, appProperties: folder.appProperties }),
+    signal: AbortSignal.timeout(10_000),
+  })
+  if (!res.ok) throw await failed('Drive folder create', res)
+  return res.json()
+}
+
+const folderLink = (f: DriveItem) => f.webViewLink ?? `https://drive.google.com/drive/folders/${f.id}`
+
+/**
+ * The site's tagged folder, wherever it now lives: My Drive or a shared drive (Client Testimonials,
+ * in the studio's shared drive, since 23 October 2026). The drive.file scope sees only what the
+ * site made, so if the folder is gone the site makes a new one in My Drive and says so.
+ */
+async function testimonialsFolder(auth: Auth): Promise<{ id: string; made: boolean }> {
+  const q = `mimeType = '${FOLDER_MIME}' and appProperties has { key='${FOLDER_TAG.key}' and value='${FOLDER_TAG.value}' } and trashed = false`
+  const [found] = await search(auth, q)
+  if (found) return { id: found.id, made: false }
+  const made = await createFolder(auth, { name: FOLDER_NAME, appProperties: { [FOLDER_TAG.key]: FOLDER_TAG.value } })
+  return { id: made.id, made: true }
+}
+
+/** Drive caps a tag at 124 bytes, so the client's email goes in as a short hash. */
+export function clientKey(email: string, names: string): string {
+  return createHash('sha256')
+    .update((email || names).trim().toLowerCase())
+    .digest('hex')
+    .slice(0, 32)
+}
+
+/** A folder per client, named as they typed their names. Found by their email, so a later take joins the first. */
+async function clientFolder(auth: Auth, parent: string, signOff: SignOff): Promise<{ id: string; link: string }> {
+  const key = clientKey(signOff.email, signOff.names)
+  const q = `'${parent}' in parents and mimeType = '${FOLDER_MIME}' and appProperties has { key='${CLIENT_KEY}' and value='${key}' } and trashed = false`
+  const found = (await search(auth, q))[0] ?? (await createFolder(auth, { name: signOff.names, parent, appProperties: { [CLIENT_KEY]: key } }))
+  return { id: found.id, link: folderLink(found) }
+}
+
+/** Which take this is: one more than the videos already in the client's folder. */
+async function nextTake(auth: Auth, folder: string): Promise<number> {
+  return (await search(auth, `'${folder}' in parents and mimeType contains 'video/' and trashed = false`, 100)).length + 1
 }
 
 /** Cuts a stream into pieces of exactly `size` bytes; only the last may be shorter. */
@@ -124,8 +164,8 @@ function driveFile(file: { id: string; webViewLink?: string; size?: string }): D
 }
 
 /** Streams the video into the folder with Drive's resumable upload, a piece at a time. */
-async function uploadVideo({ auth, parent }: { auth: Auth; parent: string }, video: DriveVideo): Promise<DriveFile> {
-  const start = await fetch(`${DRIVE_UPLOAD}?uploadType=resumable&fields=id,webViewLink,size`, {
+async function uploadVideo(auth: Auth, parent: string, video: DriveVideo): Promise<DriveFile> {
+  const start = await fetch(`${DRIVE_UPLOAD}?${new URLSearchParams({ ...ALL_DRIVES, uploadType: 'resumable', fields: 'id,webViewLink,size' })}`, {
     method: 'POST',
     headers: { ...auth, 'Content-Type': 'application/json; charset=UTF-8', 'X-Upload-Content-Type': video.contentType, 'X-Upload-Content-Length': String(video.size) },
     body: JSON.stringify({ name: video.name, parents: [parent], description: video.description }),
@@ -154,7 +194,7 @@ async function uploadVideo({ auth, parent }: { auth: Auth; parent: string }, vid
 }
 
 /** A small text file, such as the sign-off, beside the video. */
-async function uploadText({ auth, parent }: { auth: Auth; parent: string }, name: string, text: string): Promise<DriveFile> {
+async function uploadText(auth: Auth, parent: string, name: string, text: string): Promise<DriveFile> {
   const boundary = `compass-${Math.random().toString(36).slice(2)}`
   const body = [
     `--${boundary}`,
@@ -168,7 +208,7 @@ async function uploadText({ auth, parent }: { auth: Auth; parent: string }, name
     `--${boundary}--`,
     '',
   ].join('\r\n')
-  const res = await fetch(`${DRIVE_UPLOAD}?uploadType=multipart&fields=id,webViewLink,size`, {
+  const res = await fetch(`${DRIVE_UPLOAD}?${new URLSearchParams({ ...ALL_DRIVES, uploadType: 'multipart', fields: 'id,webViewLink,size' })}`, {
     method: 'POST',
     headers: { ...auth, 'Content-Type': `multipart/related; boundary=${boundary}` },
     body,
@@ -178,16 +218,20 @@ async function uploadText({ auth, parent }: { auth: Auth; parent: string }, name
   return driveFile(await res.json())
 }
 
-/** "2026-10-22 Sam and Jordan Lee, selfie video.mov", from the Blob pathname's date and extension. */
-export function driveFileName(names: string, pathname: string, suffix = 'selfie video'): string {
+/**
+ * "2026-10-23 Sam and Jamie Rivera, take 1.mov" and "2026-10-23 Sam and Jamie Rivera, take 1 sign-off.txt",
+ * from the names the client typed and the Blob pathname's date and extension.
+ */
+export function takeFileName(names: string, pathname: string, take: number, kind: 'video' | 'sign-off'): string {
   const date = pathname.match(/(\d{4}-\d{2}-\d{2})/)?.[1] ?? new Date().toISOString().slice(0, 10)
   const ext = pathname.match(/\.([a-z0-9]{2,5})$/i)?.[1] ?? 'mp4'
-  return `${date} ${names}, ${suffix}.${ext}`
+  return kind === 'video' ? `${date} ${names}, take ${take}.${ext}` : `${date} ${names}, take ${take} sign-off.txt`
 }
 
 // ---------- The emails ----------
 
-export type DriveOutcome = { kind: 'copied'; link: string; blobDeleted: boolean } | { kind: 'failed' } | { kind: 'off' }
+/** `madeNewHome`: the site couldn't find its folder, so it made a new one in My Drive. */
+export type DriveOutcome = { kind: 'copied'; link: string; folderLink: string; take: number; blobDeleted: boolean; madeNewHome: boolean } | { kind: 'failed' } | { kind: 'off' }
 
 /** To both founders, with the client as the reply address. */
 export function composeVideoEmail(v: { info: UploadInfo; size: number; drive: DriveOutcome; pathname: string; record: string; downloadUrl?: string }): { subject: string; text: string } {
@@ -195,7 +239,13 @@ export function composeVideoEmail(v: { info: UploadInfo; size: number; drive: Dr
   const length = formatDuration(duration)
   const drive =
     v.drive.kind === 'copied'
-      ? `Google Drive: ${v.drive.link}`
+      ? [
+          `Google Drive: ${v.drive.link} (take ${v.drive.take})`,
+          `Their folder: ${v.drive.folderLink}`,
+          ...(v.drive.madeNewHome
+            ? ["Note: the site couldn't find its Client Testimonials folder, so it made a new one in the Google account's My Drive. Move it into the shared drive."]
+            : []),
+        ].join('\n')
       : v.drive.kind === 'failed'
         ? "Google Drive: the copy failed, so it's only in Vercel Blob for now."
         : "Google Drive: not connected yet, so it's only in Vercel Blob."
@@ -280,7 +330,8 @@ const UNKNOWN: UploadInfo = {
 }
 
 /**
- * Copies the video and its sign-off to Drive when that's set up, deletes the Blob copy once
+ * Copies the video and its sign-off to the client's own folder in Drive when that's set up
+ * (Client Testimonials › their names › "2026-10-23 Their Names, take 1.mov"), deletes the Blob copy once
  * Drive's matches it in size, then emails the founders and the client. Never throws: until the
  * Drive copy is confirmed, Blob keeps the video.
  */
@@ -305,15 +356,18 @@ export async function deliverVideo(blob: { url: string; pathname: string }, toke
     try {
       const got = await get(blob.pathname, { access: 'private', useCache: false })
       if (!got || got.statusCode !== 200) throw new Error('Blob: the video is missing')
-      const folder = await openDrive(config)
-      const video = await uploadVideo(folder, {
+      const auth = { Authorization: `Bearer ${await accessToken(config)}` }
+      const home = await testimonialsFolder(auth)
+      const client = await clientFolder(auth, home.id, info.signOff)
+      const take = await nextTake(auth, client.id)
+      const video = await uploadVideo(auth, client.id, {
         stream: got.stream,
         size: got.blob.size,
         contentType: got.blob.contentType || contentType,
-        name: driveFileName(info.signOff.names, blob.pathname),
-        description: `${info.signOff.names}, from brand.compass-design.studio/testimonial. Name it as: ${namingLabel(info.signOff.naming)}. The sign-off is the text file beside it.`,
+        name: takeFileName(info.signOff.names, blob.pathname, take, 'video'),
+        description: `${info.signOff.names} (${info.signOff.email}), from brand.compass-design.studio/testimonial. Name it as: ${namingLabel(info.signOff.naming)}. The sign-off is the text file beside it.`,
       })
-      await uploadText(folder, driveFileName(info.signOff.names, blob.pathname.replace(/\.[a-z0-9]+$/i, '.txt'), 'sign-off'), record)
+      await uploadText(auth, client.id, takeFileName(info.signOff.names, blob.pathname, take, 'sign-off'), record)
       let blobDeleted = false
       if (video.size === got.blob.size) {
         try {
@@ -325,7 +379,7 @@ export async function deliverVideo(blob: { url: string; pathname: string }, toke
       } else {
         console.error('Testimonial: Drive copy size differs, keeping Blob', { drive: video.size, blob: got.blob.size })
       }
-      drive = { kind: 'copied', link: video.link, blobDeleted }
+      drive = { kind: 'copied', link: video.link, folderLink: client.link, take, blobDeleted, madeNewHome: home.made }
     } catch (err) {
       console.error('Testimonial: Drive copy failed', err)
       drive = { kind: 'failed' }

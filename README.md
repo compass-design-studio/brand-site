@@ -40,7 +40,7 @@ Spam checks: a hidden trap field, a signed token that must be at least 3 seconds
 
 ## Testimonial uploads
 
-The client signs first, then the phone uploads the video straight to a private Vercel Blob store; it never passes through the site's server. When Blob has it, the server copies the video and a text file of the sign-off to Google Drive, deletes the Blob copy once Drive's matches it in size, and sends two emails through Resend (as above): one to both founders with the Drive link and the sign-off, and one to the client with a copy of what they agreed to. Videos only, up to 1 GB and three minutes, with the request form's token, origin check and rate limit.
+The client signs first, then the phone uploads the video straight to a private Vercel Blob store; it never passes through the site's server. When Blob has it, the server copies the video and a text file of the sign-off into that client's folder in Google Drive, deletes the Blob copy once Drive's matches it in size, and sends two emails through Resend (as above): one to both founders with the Drive link and the sign-off, and one to the client with a copy of what they agreed to. Videos only, up to 1 GB and three minutes, with the request form's token, origin check and rate limit.
 
 | Variable | What it does |
 |---|---|
@@ -52,7 +52,7 @@ The client signs first, then the phone uploads the video straight to a private V
 
 **Blob store, once:** in Vercel, open the brand-site project, then Storage, Create, Blob. Set access to **Private**, and connect it to Production and Preview (and Development, to test locally with `vercel env pull`).
 
-**Drive copy, once,** signed in to Google as the Workspace account that should own the videos (for example canyon@compass-design.studio):
+**Drive copy, once,** signed in to Google as a Workspace account that's a member of the studio's shared drive (for example canyon@compass-design.studio):
 
 1. In the [Google Cloud console](https://console.cloud.google.com/), create a project (for example "Brand resources") and turn on the **Google Drive API**.
 2. Under **Google Auth Platform**, fill in the branding, then set the audience to **Internal** (Workspace accounts only; an External app in testing loses its token after 7 days). Under Data Access, add the scope `https://www.googleapis.com/auth/drive.file`, which reaches only the files the site creates.
@@ -60,6 +60,19 @@ The client signs first, then the phone uploads the video straight to a private V
 4. In the [OAuth 2.0 Playground](https://developers.google.com/oauthplayground), open the settings (the gear), tick **Use your own OAuth credentials** and paste the client ID and secret. In step 1, type the `drive.file` scope above and authorize it as the same Workspace account. In step 2, exchange the code for tokens and copy the **refresh token**.
 5. Add `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `GOOGLE_REFRESH_TOKEN` in Vercel (Production and Preview), then redeploy.
 
-The first upload creates a folder called "Client selfie videos" in that account's My Drive. Share it with Allison, rename it or move it anywhere in My Drive; the site finds it by a tag, not by its name or place. The token stops working if that account revokes the app's access or the app goes unused for six months; repeat step 4 to get a new one.
+**Where the videos go.** The site keeps one folder, **Client Testimonials**, in the studio's shared drive under Compass Design Studio LLC › 11 - Marketing (since 23 October 2026). Inside it, each client gets a folder named as they typed their names, holding each video and its sign-off:
+
+```
+Client Testimonials/
+  Sam and Jamie Rivera/
+    2026-10-23 Sam and Jamie Rivera, take 1.mov
+    2026-10-23 Sam and Jamie Rivera, take 1 sign-off.txt
+```
+
+A client's later takes join their folder, matched by their email, and count on from the videos already there. Files in the shared drive belong to the studio, and every member can see them.
+
+The site finds Client Testimonials by a hidden tag, not by its name or place, so rename it or move it anywhere in My Drive or a shared drive the Google account belongs to. Because the site's `drive.file` permission reaches only what the site made, keep using that folder rather than one made by hand. If the site can't find it (deleted, or moved where the account can't reach), it makes a new Client Testimonials in the account's My Drive and the founders' email says so: move that one into the shared drive.
+
+The token stops working if that account revokes the app's access, leaves the Workspace, or the app goes unused for six months; repeat step 4 to get a new one. Videos keep arriving in Blob meanwhile, and the email says the Drive copy failed.
 
 **Test it** on the production domain, or on a preview deployment with **Protection Bypass for Automation** turned on (Vercel adds `VERCEL_AUTOMATION_BYPASS_SECRET`, and the route passes it to Blob's callback). Blob only reports a finished upload to a public URL, so `npm run dev` uploads to Blob but makes no Drive copy and sends no email.

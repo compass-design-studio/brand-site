@@ -6,7 +6,7 @@ The testimonial page was chosen in a prototype on 23 October 2026 (branch `proto
 
 - **Sign first.** The client chooses and previews the video on their phone, but nothing uploads until they sign. The sign-off is one light yes covering our website, social media and paid ads, plus a choice of how they're named. Its wording is versioned in `content/site.ts`, and each video keeps a record of the exact words, the version and the time.
 - **Phone to private Blob.** The video goes straight from the phone to a private Vercel Blob store, never through the site's server. Up to 1 GB and three minutes.
-- **Then Drive.** Once Blob has it, the server copies the video and a text file of the sign-off to a Google Drive folder, deletes the Blob copy once Drive's matches it in size, emails both founders, and emails the client a copy of what they agreed to.
+- **Then Drive.** Once Blob has it, the server copies the video and a text file of the sign-off into the client's own folder inside Client Testimonials, in the studio's shared drive, deletes the Blob copy once Drive's matches it in size, emails both founders, and emails the client a copy of what they agreed to.
 
 ## Considered options
 
