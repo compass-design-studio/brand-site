@@ -5,7 +5,7 @@ The words we use for Brand resources and the Compass brand, so the site, the des
 ## The site and its sources
 
 **Brand resources**:
-The public website (brand.compass-design.studio) where people download Compass marks and read the brand rules. It is the published copy of the design system.
+The public website (brand.compass-design.studio) where people download Compass marks and read the brand rules. It is the published copy of the design system. It also hosts unlisted pages for clients ([ADR 0005](./adr/0005-unlisted-client-pages.md)).
 _Avoid_: brand hub, brand page, brand kit, brand portal
 
 **Design system**:
@@ -24,6 +24,27 @@ _Avoid_: vendor
 **Trade partner**:
 A business working alongside the studio that puts the studio's name on something, such as a sign shop, printer or builder. A builder can be both a contractor and a trade partner. A secondary visitor today, expected to become the main one as the studio grows.
 _Avoid_: partner (alone), vendor
+
+**Client**:
+A person or family the studio designs a home for. Clients visit only the unlisted pages made for them, through a link we send, and never use the marks.
+_Avoid_: customer, homeowner
+
+## Client pages
+
+**Testimonial page**:
+The unlisted page at brand.compass-design.studio/testimonial that asks a client for a selfie video, has them sign off on how we'll use it, and takes the upload. It isn't in the site menu, the sitemap or search engines.
+_Avoid_: selfie video guide, UGC page
+
+**Selfie video**:
+A short video, about a minute, that a client records on their own phone about working with the studio, in their own words.
+_Avoid_: UGC, selfie testimonial
+
+**Sign-off**:
+What a client agrees to before their selfie video uploads: we may share it on our website, social media and in ads, trimmed but never changed in meaning, named the way they chose. Each video keeps a record of the sign-off's exact wording and version.
+_Avoid_: release, waiver, consent form
+
+**Testimonial interview**:
+A recorded video call with a client about working with the studio, booked separately. The testimonial page offers it only as a quiet link.
 
 ## Marks
 

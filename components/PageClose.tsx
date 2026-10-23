@@ -1,7 +1,5 @@
 import { ArrowRight } from '@phosphor-icons/react/ssr'
 import { RequestButton } from '@/components/client/RequestDialog'
-import { Mark } from '@/components/Mark'
-import { STUDIO } from '@/content/brand'
 import { REQUEST_COPY } from '@/content/site'
 
 export function PageClose() {
@@ -20,21 +18,5 @@ export function PageClose() {
         </div>
       </div>
     </section>
-  )
-}
-
-export function Footer() {
-  return (
-    <footer className="site-foot on-dark">
-      <div className="wrap">
-        <Mark file="compass-wordmark-paper" alt="Compass" />
-        <div className="site-foot__meta">
-          <span>© MMXXVI {STUDIO.name} · Northern Alabama · {STUDIO.serviceLine}</span>
-          <span>
-            <a href={STUDIO.site}>compass-design.studio</a>
-          </span>
-        </div>
-      </div>
-    </footer>
   )
 }

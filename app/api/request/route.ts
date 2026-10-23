@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const sent = await sendWithResend({ ...config, apiKey: config.apiKey }, email, result.value.email)
+    const sent = await sendWithResend({ ...config, apiKey: config.apiKey }, email, { replyTo: result.value.email })
     return sent ? reply({ ok: true }) : reply({ ok: false, error: 'send-failed' }, 502)
   } catch (err) {
     console.error('Request email failed', err)
